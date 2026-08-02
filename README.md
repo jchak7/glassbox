@@ -17,7 +17,8 @@ interface *is* the product.
 
 - **The agent narrates before it acts.** Every step shows 1–3 sentences of
   reasoning written for a non-technical reader, then the exact action
-  (`click [12]`, `navigate → sec.gov/...`) as a separate, legible unit.
+  (`click [12]`, `navigate → stockanalysis.com/...`) as a separate, legible
+  unit.
 - **You see what it sees.** A live screenshot of the agent's browser updates
   after every action, next to the URL it's on and the step count.
 - **Control is layered, not binary.** Autopilot with Stop/Pause for when you
@@ -37,18 +38,23 @@ interface *is* the product.
 
 ## What to try
 
-Two showcase goals ship as one-click presets:
+Two showcase goals ship as one-click presets, both verified end-to-end in
+production:
 
-1. **SEC filings → comparison table.** Pulls fiscal year, revenue and net
-   income for Apple and Microsoft from their latest 10-Ks on SEC EDGAR and
-   normalizes them into one table, citing the exact filings used.
-2. **Reconcile messy invoices.** A deliberately imperfect client billing
+1. **Reconcile messy invoices.** A deliberately imperfect client billing
    portal ships inside this deploy at `/sandbox` — mixed date formats, three
-   currencies, inconsistent statuses, a duplicate invoice number, and a
-   credit note. The agent logs in, pages through all invoices, normalizes
-   them into one clean table, and flags the traps. The portal is
-   self-hosted on purpose: it makes the demo deterministic, and the mess is
-   modeled on what real client data looks like.
+   currencies, inconsistent status casing, a duplicate invoice number, and a
+   credit note. The agent logs in, pages through all 14 records, normalizes
+   them into one clean table, and flags the traps. Every extracted row has
+   been checked against ground truth: 14/14 exact. The portal is self-hosted
+   on purpose — it makes the demo deterministic, and the mess is modeled on
+   what real client data looks like.
+2. **Compare company financials.** Pulls the latest completed fiscal year
+   for Apple and Microsoft — revenue, net income, EPS — then *calculates*
+   net profit margin and flags that the two fiscal years don't align
+   (Apple ends September, Microsoft ends June), so the periods aren't
+   directly comparable. Its figures were cross-checked against the
+   companies' actual 10-K filings on SEC EDGAR and match exactly.
 
 Two more presets (a Show HN research brief and a sports-stats form workflow)
 show the agent generalizes — the loop has no task-specific code.
@@ -76,10 +82,20 @@ Design decisions worth knowing:
   and less ambiguous to act on than screenshots. Screenshots go to the
   human, because trust is visual. Elements are tagged with `data-gbid`
   attributes at distill time, so actions target exactly what the model saw.
-- **Long documents are paged, not truncated.** SEC filings run to megabytes.
-  A `read_more` tool advances a cursor through the page text so the model
-  can dig without re-tokenizing the world, and `text_remaining` tells it
-  honestly how much it hasn't read.
+- **Long documents are paged, not truncated.** Filings and reports run to
+  megabytes. A `read_more` tool advances a cursor through the page text so
+  the model can dig without re-tokenizing the world, and `text_remaining`
+  tells it honestly how much it hasn't read.
+- **Nothing is allowed to hang.** Every action, screenshot and page read has
+  a hard timeout (45s / 12s / 25s). A hang is a silent failure wearing a
+  spinner — the one outcome this agent must never produce — so on timeout
+  the agent is told plainly what stalled and re-routes. Heavy pages with
+  looping chart animations are captured with animations frozen; if a frame
+  still can't be grabbed, the feed says "screenshot skipped" and the run
+  continues rather than blocking on cosmetics.
+- **Model output is normalized before it reaches the UI.** A malformed
+  `notes` or `table` field degrades to something readable instead of
+  blanking the screen; a React error boundary is the last backstop.
 - **Operator input is part of the model's world.** Steer messages and step
   rejections are delivered as content the model must acknowledge, not as
   out-of-band restarts.
@@ -132,9 +148,13 @@ the API key is present.
   `GLASSBOX_MAX_STEPS` if you want to watch it work longer.
 - Runs are in-memory. Refreshing mid-run loses the feed (the run stops
   safely server-side).
-- Fair-access walls are real. SEC EDGAR (and sites like it) rate-gate
-  datacenter IPs; Glassbox declares a compliant User-Agent, but a shared
-  cloud IP can still be refused on a bad day. When that happens the agent
-  does the right thing: it tries alternate routes, then reports exactly
-  what was blocked and why, instead of pretending. Watch the failure — it's
-  the transparency layer earning its keep.
+- Fair-access walls are real, and one bit me. SEC EDGAR refuses this
+  deploy outright: it blocks datacenter IP ranges, and I proved the block is
+  IP-level rather than identity-level by having the agent read back its own
+  User-Agent from httpbin — correctly declared, still refused. The same
+  route works from a residential IP. So the financials showcase sources
+  stockanalysis.com instead, whose figures I cross-checked against the
+  actual 10-K filings (they match exactly). The SEC attempt is still worth
+  watching if you point the agent there: it tries five distinct routes,
+  diagnoses the block precisely, and reports what it would need to proceed
+  — which is the transparency layer earning its keep.
