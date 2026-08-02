@@ -47,6 +47,12 @@ accountant."
 off SEC EDGAR." (Start the EDGAR preset, let it run in the background while
 you talk.)
 
+**If SEC blocks the datacenter IP that day: let the failure run.** The agent
+will try multiple routes, diagnose the block, and file an honest report with
+next steps — which is requirement #5 of the brief, live. Say: "This is the
+part most agent demos hide. Mine can't lie to you — a failed run ends in a
+diagnosis, not made-up numbers. In accounting, that property is the product."
+
 ## Likely questions
 
 - **Why not screenshots to the model?** Text is cheaper, faster, and less

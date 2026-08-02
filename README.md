@@ -111,8 +111,13 @@ Or the production shape: `cd frontend && npm run build` (outputs into
 railway init          # from repo root
 railway up            # builds the Dockerfile (Playwright base image)
 railway variables --set ANTHROPIC_API_KEY=sk-ant-...
+railway variables --set "GLASSBOX_USER_AGENT=Glassbox-Agent/1.0 (contact: you@example.com)"
 railway domain        # get the public URL
 ```
+
+Set a real contact address in `GLASSBOX_USER_AGENT`. Fair-access sites like
+SEC EDGAR gate datacenter IPs and require automated clients to declare who
+they are; a browser-masquerading UA from a cloud IP gets site-wide blocked.
 
 The Dockerfile is two-stage: Node builds the SPA, the Playwright Python
 image runs the server. `/api/health` is the healthcheck and reports whether
@@ -127,3 +132,9 @@ the API key is present.
   `GLASSBOX_MAX_STEPS` if you want to watch it work longer.
 - Runs are in-memory. Refreshing mid-run loses the feed (the run stops
   safely server-side).
+- Fair-access walls are real. SEC EDGAR (and sites like it) rate-gate
+  datacenter IPs; Glassbox declares a compliant User-Agent, but a shared
+  cloud IP can still be refused on a bad day. When that happens the agent
+  does the right thing: it tries alternate routes, then reports exactly
+  what was blocked and why, instead of pretending. Watch the failure — it's
+  the transparency layer earning its keep.
