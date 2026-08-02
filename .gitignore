@@ -6,4 +6,7 @@ backend/static/
 frontend/dist/
 frontend/tsconfig.tsbuildinfo
 .DS_Store
+
+# Private working notes — drafts of the submission message, not for the repo
+SUBMISSION.md
 _to_delete/
