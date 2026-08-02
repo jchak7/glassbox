@@ -109,10 +109,14 @@ machinery run, is the output actually *correct*, and does it fail loudly
 rather than silently. All three suites run in CI on every push.
 
 ```
-python tests/test_loop.py          # machinery: real browser, scripted planner
-python tests/verify_extraction.py  # correctness: 84 values vs ground truth
-python tests/test_resilience.py    # regressions for bugs found in production
+python tests/test_loop.py                    # machinery: real browser, scripted planner
+python tests/verify_extraction.py            # correctness: 84 values vs ground truth
+python tests/test_resilience.py              # regressions for bugs found in production
+python tests/adversarial/run_adversarial.py  # tries to break it (needs an API key)
 ```
+
+115 automated assertions across four suites, plus four showcase tasks
+verified by hand against primary sources.
 
 The correctness suite re-derives the expected result independently from the
 sandbox's source data and compares field by field, because an agent can
@@ -120,8 +124,16 @@ produce a table that looks right and is wrong. The financials task was
 cross-checked against Apple's and Microsoft's actual 10-K filings — all six
 figures match exactly.
 
-Full detail, including the three production bugs that became regression
-tests and an honest list of what *isn't* covered: **[TESTING.md](TESTING.md)**.
+The adversarial suite serves its own hostile pages and checks the things
+that actually worry me about a browser agent: does it obey a web page that
+tells it to ignore its user (no — twice, including an invisible-text
+variant), does it invent data when a page is empty or unreachable (no), does
+it refuse harmful work (yes), and does it stop and take correction when a
+human intervenes (yes).
+
+Full detail in **[TESTING.md](TESTING.md)**. The seven bugs found while
+building — how each was caught, why it mattered, and what changed — are in
+**[BUGS.md](BUGS.md)**.
 
 ## Run it locally
 

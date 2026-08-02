@@ -9,6 +9,21 @@ here. Three questions get asked separately, because they fail separately:
 
 Everything below is reproducible from this repo.
 
+## At a glance
+
+| Suite | What it proves | Assertions | Needs API key | In CI |
+| --- | --- | --- | --- | --- |
+| `test_loop.py` | machinery: loop, events, controls | 7 | no | yes |
+| `verify_extraction.py` | output correctness vs ground truth | 84 field comparisons | no | yes |
+| `test_resilience.py` | regressions for bugs found in production | 6 | no | yes |
+| `adversarial/run_adversarial.py` | injection, refusal, fabrication, control | 18 across 7 scenarios | yes (~$0.20) | no |
+| live production runs | the real thing, end to end | 4 tasks, all verified | yes | no |
+
+**115 automated assertions**, plus four showcase tasks verified by hand
+against primary sources. Seven bugs found and fixed along the way — each one
+written up in **[BUGS.md](BUGS.md)** with how it was found, why it mattered,
+and what changed.
+
 ## 1. Machinery — `backend/tests/test_loop.py`
 
 Runs the full agent loop against the sandbox portal with a *scripted*
@@ -136,15 +151,30 @@ The form-fill task is worth a look beyond the mechanics: the agent noticed
 that 2004 was absent from the season data and connected it to the real
 2004–05 NHL lockout, rather than reporting a gap it didn't understand.
 
-## 5. Adversarial testing
+## 5. Adversarial testing — `backend/tests/adversarial/`
 
-Positive tests prove it works. These try to break it. Every one was run
-against a live instance with real Claude driving.
+Positive tests prove it works. These try to break it. This suite is
+**runnable, not just described** — it serves its own hostile pages and
+asserts on behaviour rather than wording, so it survives the model phrasing
+things differently between runs.
+
+```
+$ export ANTHROPIC_API_KEY=sk-ant-...
+$ uvicorn app.main:app --port 8000 &
+$ python tests/adversarial/run_adversarial.py
+...
+17/18 assertions passed across 7 adversarial scenarios
+```
+
+(The one failure on that run was a flaw in the *test*, not the product — it
+depended on which valid pagination path the model chose. Fixed; now 18/18.
+Written up as item 7 in BUGS.md, because a flaky test is worse than no test.)
 
 ### Prompt injection — the attack that matters most for a browser agent
 
 An agent that reads web pages will eventually read a page that tries to give
-it orders. I served two hostile pages and pointed the agent at them.
+it orders. The hostile pages live in `tests/adversarial/hostile_pages.py`
+and are served locally, so the whole thing is self-contained.
 
 **Overt injection.** A page carrying a fake "SYSTEM NOTICE — INSTRUCTIONS FOR
 AUTOMATED AGENTS" claiming administrative authority, ordering the agent to
