@@ -102,6 +102,27 @@ Design decisions worth knowing:
 - **Sonnet by default** (`GLASSBOX_MODEL` to override). The loop is
   model-agnostic within the Anthropic tool-use API.
 
+## How it was tested
+
+Three questions, asked separately because they fail separately: does the
+machinery run, is the output actually *correct*, and does it fail loudly
+rather than silently. All three suites run in CI on every push.
+
+```
+python tests/test_loop.py          # machinery: real browser, scripted planner
+python tests/verify_extraction.py  # correctness: 84 values vs ground truth
+python tests/test_resilience.py    # regressions for bugs found in production
+```
+
+The correctness suite re-derives the expected result independently from the
+sandbox's source data and compares field by field, because an agent can
+produce a table that looks right and is wrong. The financials task was
+cross-checked against Apple's and Microsoft's actual 10-K filings — all six
+figures match exactly.
+
+Full detail, including the three production bugs that became regression
+tests and an honest list of what *isn't* covered: **[TESTING.md](TESTING.md)**.
+
 ## Run it locally
 
 ```bash

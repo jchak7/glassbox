@@ -1,0 +1,55 @@
+name: CI
+
+# Every push runs the same three suites documented in TESTING.md:
+# machinery, correctness-vs-ground-truth, and the resilience regressions.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+      - name: Start the app (serves the sandbox portal the tests drive)
+        working-directory: backend
+        run: |
+          uvicorn app.main:app --port 8000 &
+          for i in $(seq 1 30); do
+            curl -sf localhost:8000/api/health && break || sleep 1
+          done
+      - name: Machinery — full agent loop, scripted planner, real browser
+        working-directory: backend
+        run: python tests/test_loop.py
+      - name: Correctness — extraction vs independently derived ground truth
+        working-directory: backend
+        run: python tests/verify_extraction.py
+      - name: Resilience — regressions for bugs found in production
+        working-directory: backend
+        run: python tests/test_resilience.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Typecheck and build
+        working-directory: frontend
+        run: npm run build
