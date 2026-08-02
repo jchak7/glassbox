@@ -20,8 +20,10 @@ LLM_TIMEOUT_S = 120
 class Run:
     """One goal, one browser, one operator. Lives for the duration of a task."""
 
-    def __init__(self, goal: str, emit, mode: str = "auto", headless: bool = True):
+    def __init__(self, goal: str, emit, mode: str = "auto", headless: bool = True,
+                 self_base_url: str | None = None):
         self.goal = goal.strip()
+        self.self_base_url = self_base_url
         self.emit = emit                      # async fn(dict) -> None
         self.mode = mode                      # "auto" | "approve"
         self.controls = asyncio.Queue()       # inbound operator commands
@@ -111,8 +113,13 @@ class Run:
                               "Nothing was executed.")
             return
 
+        hint = ""
+        if self.self_base_url and "/sandbox" in self.goal:
+            hint = (f"\n\nNOTE: the demo billing portal referenced as /sandbox is "
+                    f"served by this same application at {self.self_base_url}/sandbox "
+                    f"— navigate there directly.")
         messages = [{"role": "user", "content":
-                     f"GOAL: {self.goal}\n\nThe browser is open on a blank page. "
+                     f"GOAL: {self.goal}{hint}\n\nThe browser is open on a blank page. "
                      "Begin by explaining your plan in a sentence or two, then take "
                      "your first action."}]
         errors_in_a_row = 0

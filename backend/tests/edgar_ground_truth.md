@@ -18,3 +18,28 @@ by hand; values are as filed.
 2. Newest row → "Documents" → filing index page
 3. Same folder → FilingSummary.xml → find income-statement Rn.htm (name varies)
 4. Rn.htm is a small clean text table; read newest fiscal-year column
+
+---
+
+## Post-deploy finding (2026-08-02): SEC blocks datacenter IPs
+
+Verified from production: SEC returns "Your Request Originates from an
+Undeclared Automated Tool" for **every** endpoint (CGI browse-edgar,
+data.sec.gov, EDGAR full-text UI, raw Archives) when requested from
+Railway. Proven to be IP-level, not User-Agent-level: httpbin.org/user-agent
+echoed our correctly-declared UA
+(`Glassbox-Agent/1.0 (Jay Chak; contact: ...)`) from the same deploy, and
+SEC still refused. The same route works fine from a residential IP.
+
+**Resolution:** the financials showcase now sources stockanalysis.com,
+whose figures were cross-checked against the SEC filings above and match
+exactly:
+
+| Company | FY | Revenue ($M) | Net income ($M) | EPS | SEC match |
+|---|---|---|---|---|---|
+| Apple | FY2025 (ends 2025-09-27) | 416,161 | 112,010 | 7.46 | exact |
+| Microsoft | FY2026 (ends 2026-06-30) | 331,839 | 133,749 | 17.95 | exact |
+
+Use these to verify any run of the "Compare company financials" preset.
+Net margin check: Apple 112,010/416,161 = 26.9%; Microsoft
+133,749/331,839 = 40.3%.

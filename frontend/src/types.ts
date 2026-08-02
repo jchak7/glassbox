@@ -44,20 +44,6 @@ export interface RunState {
 
 export const PRESETS: { label: string; goal: string; tag: string }[] = [
   {
-    label: 'SEC filings → comparison table',
-    tag: 'showcase',
-    goal:
-      'Pull the latest annual-report (10-K) financials for Apple Inc and Microsoft Corp from SEC EDGAR ' +
-      'and build one comparison table. Route that works: for each company, open ' +
-      'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=10-K&count=5&company=<name> — ' +
-      'the top row is the newest 10-K; open its "Documents" filing index. Then, in the same folder as ' +
-      'the index page, open FilingSummary.xml and find which report page (Rn.htm) is the income ' +
-      'statement — it is named something like "CONSOLIDATED STATEMENTS OF OPERATIONS" or "INCOME ' +
-      'STATEMENTS" — and open that Rn.htm. Read the most recent fiscal-year column. Deliver a table: ' +
-      'company, fiscal year end, total revenue/net sales (USD millions), net income (USD millions), ' +
-      'diluted EPS. Cite each filing’s accession number in your notes.',
-  },
-  {
     label: 'Reconcile messy invoices (sandbox)',
     tag: 'showcase',
     goal:
@@ -65,6 +51,19 @@ export const PRESETS: { label: string; goal: string; tag: string }[] = [
       'Collect every invoice across all pages. Normalize into one table with columns: ' +
       'invoice number, vendor, date (ISO 8601), amount, currency, status (Paid/Pending/Overdue/Credit). ' +
       'Flag anything unusual — duplicates, credit notes, inconsistent formats — in your notes.',
+  },
+  {
+    label: 'Compare company financials',
+    tag: 'showcase',
+    goal:
+      'Compare the latest full-fiscal-year financials for Apple and Microsoft. ' +
+      'Open https://stockanalysis.com/stocks/aapl/financials/ and read the most recent ' +
+      'completed fiscal year column (not TTM): revenue, net income, and earnings per share. ' +
+      'Then do the same at https://stockanalysis.com/stocks/msft/financials/. ' +
+      'Build one comparison table: company, fiscal year end, revenue (USD millions), ' +
+      'net income (USD millions), EPS, and net profit margin which you calculate as ' +
+      'net income divided by revenue. Note in your findings that the two companies have ' +
+      'different fiscal year ends, so the periods are not directly comparable.',
   },
   {
     label: 'Research brief: Show HN',

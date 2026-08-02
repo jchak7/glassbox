@@ -65,7 +65,12 @@ async def ws_endpoint(ws: WebSocket):
                     await emit({"type": "error", "message": "Empty goal.",
                                 "recoverable": True})
                     continue
-                run = Run(goal, emit, mode=msg.get("mode", "auto"))
+                # The agent's browser runs server-side, so a bare "/sandbox" in
+                # a goal has no origin to resolve against. Resolve it here from
+                # the server's own bind port rather than making the agent guess.
+                port = os.environ.get("PORT", "8000")
+                run = Run(goal, emit, mode=msg.get("mode", "auto"),
+                          self_base_url=f"http://localhost:{port}")
                 run_task = asyncio.create_task(run.run())
             elif run is not None:
                 await run.handle(msg)
