@@ -6,3 +6,4 @@ backend/static/
 frontend/dist/
 frontend/tsconfig.tsbuildinfo
 .DS_Store
+_to_delete/
