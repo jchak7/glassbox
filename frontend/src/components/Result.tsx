@@ -28,11 +28,19 @@ function cellClass(col: string, value: string): string {
 }
 
 export function Result({ result, onNewRun }: { result: ResultEvent; onNewRun: () => void }) {
-  const meta = STATUS_COPY[result.status]
+  const meta = STATUS_COPY[result.status] ?? STATUS_COPY.error
   const partial = result.status !== 'success'
+  // Belt over the backend's braces: never trust event payload shapes.
+  const notes: string[] = Array.isArray(result.notes)
+    ? result.notes.map(String)
+    : result.notes ? [String(result.notes)] : []
+  const table =
+    result.table && Array.isArray(result.table.columns) && Array.isArray(result.table.rows)
+      ? result.table
+      : null
   const download = () => {
-    if (!result.table) return
-    const blob = new Blob([toCsv(result.table.columns, result.table.rows)], { type: 'text/csv' })
+    if (!table) return
+    const blob = new Blob([toCsv(table.columns, table.rows)], { type: 'text/csv' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = 'glassbox-result.csv'
@@ -51,18 +59,18 @@ export function Result({ result, onNewRun }: { result: ResultEvent; onNewRun: ()
         </span>
       </div>
       {result.summary && <p className="result-summary">{result.summary}</p>}
-      {result.table && result.table.rows.length > 0 && (
+      {table && table.rows.length > 0 && (
         <>
           <div className="result-table-wrap">
             <table>
               <thead>
-                <tr>{result.table.columns.map((c, i) => <th key={i}>{c}</th>)}</tr>
+                <tr>{table.columns.map((c, i) => <th key={i}>{c}</th>)}</tr>
               </thead>
               <tbody>
-                {result.table.rows.map((r, i) => (
+                {table.rows.map((r, i) => (
                   <tr key={i}>
-                    {r.map((c, j) => (
-                      <td key={j} className={cellClass(result.table!.columns[j] ?? '', c)}>{c}</td>
+                    {(Array.isArray(r) ? r : [String(r)]).map((c, j) => (
+                      <td key={j} className={cellClass(String(table.columns[j] ?? ''), String(c))}>{String(c)}</td>
                     ))}
                   </tr>
                 ))}
@@ -71,18 +79,18 @@ export function Result({ result, onNewRun }: { result: ResultEvent; onNewRun: ()
           </div>
           <div className="table-foot">
             <span>glassbox-result.csv</span>
-            <span>{result.table.rows.length} rows</span>
+            <span>{table.rows.length} rows</span>
           </div>
         </>
       )}
-      {result.notes && result.notes.length > 0 && (
+      {notes.length > 0 && (
         <div className="result-notes">
-          <h4>The agent flagged <span className="notes-count">{result.notes.length}</span></h4>
-          <ul>{result.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
+          <h4>The agent flagged <span className="notes-count">{notes.length}</span></h4>
+          <ul>{notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
         </div>
       )}
       <div className="result-foot">
-        {result.table && result.table.rows.length > 0 && (
+        {table && table.rows.length > 0 && (
           <button className="btn btn-primary" onClick={download}>
             {partial ? 'Download partial CSV' : 'Download CSV'}
           </button>

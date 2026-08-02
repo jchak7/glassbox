@@ -313,9 +313,30 @@ class Run:
         return {"role": "user", "content": blocks}
 
     async def _finish(self, status: str, summary: str, table=None, notes=None):
+        # Normalize model output defensively: a malformed field must degrade,
+        # never crash the client. (Learned the hard way: notes arrived as a
+        # string once and blanked the UI.)
+        if isinstance(notes, str):
+            notes = [notes]
+        elif not isinstance(notes, list):
+            notes = []
+        notes = [str(n) for n in notes]
+        if table is not None:
+            cols = table.get("columns") if isinstance(table, dict) else None
+            rows = table.get("rows") if isinstance(table, dict) else None
+            if isinstance(cols, list) and isinstance(rows, list):
+                table = {
+                    "columns": [str(c) for c in cols],
+                    "rows": [[str(c) for c in (r if isinstance(r, list) else [r])]
+                             for r in rows],
+                }
+            else:
+                notes.append("The agent returned a malformed table; it was "
+                             "dropped rather than shown wrong.")
+                table = None
         await self.emit({
-            "type": "result", "status": status, "summary": summary,
-            "table": table, "notes": notes or [],
+            "type": "result", "status": status, "summary": str(summary or ""),
+            "table": table, "notes": notes,
             "steps": self.step_n,
             "duration_s": round(time.time() - self._t0, 1) if self._t0 else 0,
             "usage": self.usage,
