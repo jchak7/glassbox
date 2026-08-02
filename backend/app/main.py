@@ -18,11 +18,20 @@ app.include_router(sandbox_router)
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
+# Each run owns a real Chromium process, measured at ~380 MB resident. On a
+# 1 GB host that means two concurrent runs, not three — and an OOM kill takes
+# down every session including the one mid-demo. So capacity is refused
+# politely and explicitly rather than discovered by crashing.
+MAX_CONCURRENT_RUNS = int(os.environ.get("GLASSBOX_MAX_CONCURRENT", "2"))
+_active_runs = 0
+_runs_lock = asyncio.Lock()
+
 
 @app.get("/api/health")
 def health():
     return {"ok": True, "model": os.environ.get("GLASSBOX_MODEL", "claude-sonnet-5"),
-            "key_present": bool(os.environ.get("ANTHROPIC_API_KEY"))}
+            "key_present": bool(os.environ.get("ANTHROPIC_API_KEY")),
+            "active_runs": _active_runs, "max_concurrent": MAX_CONCURRENT_RUNS}
 
 
 @app.websocket("/ws")
@@ -65,13 +74,41 @@ async def ws_endpoint(ws: WebSocket):
                     await emit({"type": "error", "message": "Empty goal.",
                                 "recoverable": True})
                     continue
+                global _active_runs
+                async with _runs_lock:
+                    if _active_runs >= MAX_CONCURRENT_RUNS:
+                        await emit({"type": "error", "recoverable": False,
+                                    "message": f"The demo server is at capacity "
+                                               f"({MAX_CONCURRENT_RUNS} runs in "
+                                               "progress). Each run drives a real "
+                                               "browser, and this host has room for "
+                                               f"{MAX_CONCURRENT_RUNS}. Give it a "
+                                               "minute and try again."})
+                        await emit({"type": "result", "status": "error",
+                                    "summary": "Not started — the server was already "
+                                               "running its maximum number of "
+                                               "browsers. Nothing was executed.",
+                                    "table": None, "notes": [], "steps": 0,
+                                    "duration_s": 0})
+                        continue
+                    _active_runs += 1
+
                 # The agent's browser runs server-side, so a bare "/sandbox" in
                 # a goal has no origin to resolve against. Resolve it here from
                 # the server's own bind port rather than making the agent guess.
                 port = os.environ.get("PORT", "8000")
                 run = Run(goal, emit, mode=msg.get("mode", "auto"),
                           self_base_url=f"http://localhost:{port}")
-                run_task = asyncio.create_task(run.run())
+
+                async def _tracked(r=run):
+                    global _active_runs
+                    try:
+                        await r.run()
+                    finally:
+                        async with _runs_lock:
+                            _active_runs -= 1
+
+                run_task = asyncio.create_task(_tracked())
             elif run is not None:
                 await run.handle(msg)
     except WebSocketDisconnect:

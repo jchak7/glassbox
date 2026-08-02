@@ -162,7 +162,13 @@ the API key is present.
 
 ## Honest limitations
 
-- One run per browser tab, one tab per run. No parallel sessions yet.
+- Concurrency is capped at 2 simultaneous runs (`GLASSBOX_MAX_CONCURRENT`).
+  Each run drives a real Chromium at roughly 380 MB resident, and the deploy
+  host has 1 GB — a third run would OOM-kill the container and take every
+  session with it. Beyond the cap, runs are refused with a clear message
+  rather than crashing the server. Raising it is a matter of host memory,
+  not code; a hosted-browser pool (Browserbase/Steel) would lift it entirely
+  behind the same event protocol.
 - No login-walled real-world targets — deliberate scope choice for a public
   demo; the sandbox portal covers the authenticated-workflow case.
 - The step limit is 40. Long research tasks hit it; raise
