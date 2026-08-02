@@ -172,28 +172,22 @@ The Dockerfile is two-stage: Node builds the SPA, the Playwright Python
 image runs the server. `/api/health` is the healthcheck and reports whether
 the API key is present.
 
-## Honest limitations
+## Limitations
 
-- Concurrency is capped at 2 simultaneous runs (`GLASSBOX_MAX_CONCURRENT`).
-  Each run drives a real Chromium at roughly 380 MB resident, and the deploy
-  host has 1 GB — a third run would OOM-kill the container and take every
-  session with it. Beyond the cap, runs are refused with a clear message
-  rather than crashing the server. Raising it is a matter of host memory,
-  not code; a hosted-browser pool (Browserbase/Steel) would lift it entirely
-  behind the same event protocol.
-- No login-walled real-world targets — deliberate scope choice for a public
-  demo; the sandbox portal covers the authenticated-workflow case.
-- The step limit is 40. Long research tasks hit it; raise
-  `GLASSBOX_MAX_STEPS` if you want to watch it work longer.
-- Runs are in-memory. Refreshing mid-run loses the feed (the run stops
-  safely server-side).
-- Fair-access walls are real, and one bit me. SEC EDGAR refuses this
-  deploy outright: it blocks datacenter IP ranges, and I proved the block is
-  IP-level rather than identity-level by having the agent read back its own
-  User-Agent from httpbin — correctly declared, still refused. The same
-  route works from a residential IP. So the financials showcase sources
-  stockanalysis.com instead, whose figures I cross-checked against the
-  actual 10-K filings (they match exactly). The SEC attempt is still worth
-  watching if you point the agent there: it tries five distinct routes,
-  diagnoses the block precisely, and reports what it would need to proceed
-  — which is the transparency layer earning its keep.
+The honest edges, in the order you're most likely to hit them:
+
+1. **SEC EDGAR is worked around, not solved** — SEC blocks datacenter IPs, so
+   the financials task sources verified-identical numbers elsewhere. Point it
+   at SEC and it fails *legibly*, diagnosing the block rather than faking data.
+2. **Two of the four tasks depend on live third-party sites** — the sandbox
+   task is self-hosted and deterministic; the financials and Show HN tasks
+   depend on real sites staying up and unchanged. Demo the sandbox first.
+3. **Demo-grade deployment** — two concurrent runs max, in-memory, one browser
+   per run, trial hosting. Deliberate trade-offs for a take-home, not
+   production infrastructure.
+4. **The agent can misread a novel page** — reliable on real tasks, and legible
+   enough that you catch it when it isn't. That's what the control layer is for.
+
+Each of these — what it is, why it exists, the workaround in place, and the
+path to production — is written up in **[LIMITATIONS.md](LIMITATIONS.md)**.
+The seven bugs found and fixed while building are in **[BUGS.md](BUGS.md)**.
