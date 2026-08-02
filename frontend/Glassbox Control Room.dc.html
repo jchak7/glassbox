@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#04060a; }
+  a { color:#4BF0A8; text-decoration:none; }
+  a:hover { color:#8CFFD0; }
+  @keyframes gbpulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:.35; transform:scale(.82);} }
+  @keyframes gbring { 0% { opacity:.55; transform:scale(.55);} 100% { opacity:0; transform:scale(2.3);} }
+  @keyframes gbshimmer { 0% { background-position:-240px 0;} 100% { background-position:640px 0;} }
+  @keyframes gbcaret { 0%,49% { opacity:1;} 50%,100% { opacity:0;} }
+</style>
+</helmet>
+
+<div style="--acc:{{ acc }};min-height:100%;background:#04060a;padding:56px 64px 140px;display:flex;flex-direction:column;align-items:center;gap:88px;font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+
+<div style="width:1440px;display:flex;align-items:flex-end;justify-content:space-between;gap:40px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.07)">
+  <div style="display:flex;flex-direction:column;gap:7px">
+    <div style="font-size:24px;font-weight:600;letter-spacing:-.02em;color:#E9EEF5"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 18px rgba(75,240,168,.55);margin-right:8px">▣</span>Glassbox — control room</div>
+    <div style="font-size:14px;color:#8E9AAD;letter-spacing:.01em">Five states of one desktop screen · 1440 × 900 · dark only</div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8E9AAD;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)">01 IDLE</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8E9AAD;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)">02 RUNNING</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8E9AAD;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)">03 APPROVAL</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8E9AAD;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)">04 RESULT</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8E9AAD;padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)">05 FAILED</span>
+  </div>
+</div>
+
+<!-- ═══════════════════ 01 IDLE ═══════════════════ -->
+<div style="display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:baseline;gap:14px;padding-left:4px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc,#4BF0A8)">01</span>
+    <span style="font-size:19px;font-weight:600;letter-spacing:-.01em;color:#E9EEF5">Idle</span>
+    <span style="font-size:13.5px;color:#8E9AAD">Nothing running. The presets do the inviting.</span>
+  </div>
+</sc-if>
+
+<div data-screen-label="01 Idle" style="position:relative;width:1440px;height:900px;overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);box-shadow:0 50px 130px rgba(0,0,0,.7);background:#05070a;color:#E9EEF5;font-size:14px">
+  <div style="position:absolute;inset:0;opacity:{{ glow }};background:radial-gradient(980px 620px at 16% -14%,rgba(75,240,168,.13),transparent 62%),radial-gradient(880px 600px at 104% 116%,rgba(90,140,255,.10),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;opacity:{{ gridOpacity }};background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">
+
+    <!-- top bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;height:56px;flex:0 0 56px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px)">
+      <div style="display:flex;align-items:baseline;gap:11px">
+        <span style="font-size:17px;font-weight:650;letter-spacing:-.01em;color:#F2F6FB"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 16px rgba(75,240,168,.6);margin-right:7px">▣</span>Glassbox</span>
+        <span style="font-size:13px;color:#8E9AAD">— a browser agent you can see through</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#78849A;letter-spacing:-.02em">0.0k tokens</span>
+        <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:#A8B3C4;padding:5px 12px 5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04)"><span style="width:6px;height:6px;border-radius:50%;background:#6D7889"></span>ready</span>
+      </div>
+    </div>
+
+    <!-- goal bar -->
+    <div style="flex:0 0 auto;padding:14px 22px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));backdrop-filter:blur(18px)">
+      <div style="position:relative;height:62px;border-radius:10px;border:1px solid rgba(255,255,255,.11);background:rgba(8,11,16,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.045);padding:11px 14px">
+        <span style="font-size:14.5px;color:#7C879A">Tell the agent what to get done — in plain English.</span><span style="display:inline-block;width:1.5px;height:15px;background:var(--acc,#4BF0A8);margin-left:2px;vertical-align:-2px;animation:gbcaret 1.1s step-end infinite"></span>
+        <span style="position:absolute;right:12px;bottom:9px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5D6779;letter-spacing:.02em">⌘↵ to run</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <div style="display:flex;border:1px solid rgba(255,255,255,.11);border-radius:9px;overflow:hidden;background:rgba(8,11,16,.5)">
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;font-weight:500;color:#EAF0F7;background:rgba(255,255,255,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)">Autopilot</span>
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;color:#828E9F;border-left:1px solid rgba(255,255,255,.09)">Approve each step</span>
+        </div>
+        <span style="padding:8px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 22px rgba(75,240,168,.32),inset 0 1px 0 rgba(255,255,255,.35);opacity:.42">Run agent</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#8E9AAD;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);opacity:.5">Pause</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF6B70;border:1px solid rgba(255,107,112,.30);background:rgba(255,107,112,.05);opacity:.5">Stop</span>
+        <span style="margin-left:auto;font-size:12.5px;color:#6E7A8C">Pick a preset, or write your own goal.</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:11px">
+        <span style="font-size:12.5px;font-weight:500;padding:6px 13px;border-radius:999px;color:#5EF2B0;border:1px solid rgba(75,240,168,.34);background:rgba(75,240,168,.09);box-shadow:0 0 20px rgba(75,240,168,.10)">SEC filings → comparison table</span>
+        <span style="font-size:12.5px;font-weight:500;padding:6px 13px;border-radius:999px;color:#5EF2B0;border:1px solid rgba(75,240,168,.34);background:rgba(75,240,168,.09);box-shadow:0 0 20px rgba(75,240,168,.10)">Reconcile messy invoices (sandbox)</span>
+        <span style="font-size:12.5px;padding:6px 13px;border-radius:999px;color:#96A1B2;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.035)">Research brief: Show HN</span>
+        <span style="font-size:12.5px;padding:6px 13px;border-radius:999px;color:#96A1B2;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.035)">Tedious workflow: web form</span>
+      </div>
+    </div>
+
+    <!-- workspace -->
+    <div style="flex:1;display:grid;grid-template-columns:58% 42%;min-height:0">
+      <div style="display:flex;flex-direction:column;min-height:0;border-right:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:11px;height:40px;flex:0 0 40px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:12px;color:#78849A">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">about:blank</span>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;background:radial-gradient(560px 340px at 50% 45%,rgba(255,255,255,.028),transparent 70%),#07090d">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+            <div style="width:74px;height:56px;border-radius:9px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.025);position:relative;box-shadow:0 0 40px rgba(75,240,168,.06)">
+              <div style="position:absolute;top:0;left:0;right:0;height:14px;border-bottom:1px solid rgba(255,255,255,.11);display:flex;align-items:center;gap:3px;padding-left:6px">
+                <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.22)"></span>
+                <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.22)"></span>
+                <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.22)"></span>
+              </div>
+            </div>
+            <div style="font-size:14px;color:#7C879A">The agent’s browser will appear here.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;min-height:0">
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 34px;min-height:0">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#5FEFAE;margin-bottom:14px">ACTIVITY</div>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#C2CCDA;max-width:420px;text-wrap:pretty">Give the agent a goal and every thought, click and page it touches will appear here as it happens.</p>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:26px;max-width:420px">
+            <div style="display:flex;gap:11px;align-items:flex-start"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc,#4BF0A8);padding-top:2px">01</span><span style="font-size:13.5px;line-height:1.55;color:#8E9AAD">It narrates in plain English before every action.</span></div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc,#4BF0A8);padding-top:2px">02</span><span style="font-size:13.5px;line-height:1.55;color:#8E9AAD">You can pause, stop, or correct it mid-run.</span></div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc,#4BF0A8);padding-top:2px">03</span><span style="font-size:13.5px;line-height:1.55;color:#8E9AAD">Failures show up here too — never a silent spinner.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ 02 RUNNING ═══════════════════ -->
+<div style="display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:baseline;gap:14px;padding-left:4px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc,#4BF0A8)">02</span>
+    <span style="font-size:19px;font-weight:600;letter-spacing:-.01em;color:#E9EEF5">Running</span>
+    <span style="font-size:13.5px;color:#8E9AAD">Step 7 of a live run — one recovered error, one mid-run correction from the operator.</span>
+  </div>
+</sc-if>
+
+<div data-screen-label="02 Running" style="position:relative;width:1440px;height:900px;overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);box-shadow:0 50px 130px rgba(0,0,0,.7);background:#05070a;color:#E9EEF5;font-size:14px">
+  <div style="position:absolute;inset:0;opacity:{{ glow }};background:radial-gradient(980px 620px at 16% -14%,rgba(75,240,168,.13),transparent 62%),radial-gradient(880px 600px at 104% 116%,rgba(90,140,255,.10),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;opacity:{{ gridOpacity }};background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;height:56px;flex:0 0 56px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px)">
+      <div style="display:flex;align-items:baseline;gap:11px">
+        <span style="font-size:17px;font-weight:650;letter-spacing:-.01em;color:#F2F6FB"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 16px rgba(75,240,168,.6);margin-right:7px">▣</span>Glassbox</span>
+        <span style="font-size:13px;color:#8E9AAD">— a browser agent you can see through</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8;letter-spacing:-.02em">8.4k tokens</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#5FEFAE;padding:5px 13px 5px 10px;border-radius:999px;border:1px solid rgba(75,240,168,.38);background:rgba(75,240,168,.10);box-shadow:0 0 22px rgba(75,240,168,.14)"><span style="position:relative;display:inline-flex;width:7px;height:7px"><span style="position:absolute;inset:0;border-radius:50%;background:var(--acc,#4BF0A8);animation:gbpulse 1.6s ease-in-out infinite"></span><span style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(75,240,168,.5);animation:gbring 1.9s ease-out infinite"></span></span>working</span>
+      </div>
+    </div>
+
+    <div style="flex:0 0 auto;padding:14px 22px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));backdrop-filter:blur(18px)">
+      <div style="position:relative;height:62px;border-radius:10px;border:1px solid rgba(255,255,255,.09);background:rgba(8,11,16,.42);padding:10px 14px;overflow:hidden">
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#AEB9C9;text-wrap:pretty">Log in to the billing portal at /sandbox (credentials are shown on the sign-in page). Collect every invoice across all pages. Normalize into one table with columns: invoice number, vendor, date (ISO 8601), amount, currency, status. Flag anything unusual.</p>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(8,11,16,.75))"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <div style="display:flex;border:1px solid rgba(255,255,255,.11);border-radius:9px;overflow:hidden;background:rgba(8,11,16,.5)">
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;font-weight:500;color:#EAF0F7;background:rgba(255,255,255,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)">Autopilot</span>
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;color:#828E9F;border-left:1px solid rgba(255,255,255,.09)">Approve each step</span>
+        </div>
+        <span style="padding:8px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));opacity:.35">Run agent</span>
+        <span style="padding:8px 16px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)">Pause</span>
+        <span style="padding:8px 16px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF7A7F;border:1px solid rgba(255,107,112,.42);background:rgba(255,107,112,.09)">Stop</span>
+        <div style="flex:1;display:flex;align-items:center;gap:12px;margin-left:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#78849A;white-space:nowrap">step 7 / 40 max</span>
+          <div style="position:relative;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:17.5%;border-radius:2px;background:linear-gradient(90deg,rgba(75,240,168,.3),var(--acc,#4BF0A8));box-shadow:0 0 14px rgba(75,240,168,.55)"></div>
+            <div style="position:absolute;inset:0;background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);background-size:200px 100%;background-repeat:no-repeat;animation:gbshimmer 2.4s linear infinite"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#78849A;white-space:nowrap">00:11 elapsed</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:grid;grid-template-columns:58% 42%;min-height:0">
+
+      <!-- browser pane -->
+      <div style="display:flex;flex-direction:column;min-height:0;border-right:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:11px;height:40px;flex:0 0 40px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8">
+          <span style="position:relative;display:inline-flex;width:8px;height:8px"><span style="position:absolute;inset:0;border-radius:50%;background:#FF4D57;box-shadow:0 0 10px rgba(255,77,87,.9);animation:gbpulse 1.6s ease-in-out infinite"></span><span style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(255,77,87,.5);animation:gbring 1.8s ease-out infinite"></span></span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">glassbox.up.railway.app/sandbox/invoices?page=1</span>
+          <span style="color:var(--acc,#4BF0A8);font-weight:500">step 7</span>
+        </div>
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:#f4f1ea">
+          <div style="position:absolute;top:0;left:0;width:1280px;transform:scale(.6525);transform-origin:top left;font-family:Georgia,'Times New Roman',serif;color:#2b2b2b;background:#f4f1ea;min-height:1060px">
+            <div style="background:#1e3a2f;color:#f4f1ea;padding:14px 28px;font-size:20px">Meridian Supply Co. <span style="opacity:.7;font-size:12px;margin-left:10px">client billing portal</span></div>
+            <div style="max-width:860px;margin:30px auto;background:#fff;padding:28px;border:1px solid #d8d2c4;box-shadow:2px 2px 0 #d8d2c4">
+              <h2 style="margin:0 0 14px;font-size:24px;font-weight:700">Invoices</h2>
+              <p style="background:#fdf6dd;border:1px solid #e0d49a;padding:10px;font-size:13px;margin:0 0 16px">Records are shown exactly as entered by our regional offices. Formats may vary.</p>
+              <table style="border-collapse:collapse;width:100%;font-size:14px">
+                <tr><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Invoice #</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Vendor</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Date</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Amount</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Status</th></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2041</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Northwind Traders</td><td style="border:1px solid #cfc8b8;padding:8px 10px">03/15/2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$1,240.50</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Paid</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2042</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Acme Industrial</td><td style="border:1px solid #cfc8b8;padding:8px 10px">2026-03-18</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$8,900.00</td><td style="border:1px solid #cfc8b8;padding:8px 10px">PAID</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2043</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Baltic Freight GmbH</td><td style="border:1px solid #cfc8b8;padding:8px 10px">21.03.2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">2.450,00 EUR</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Overdue</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2044</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Sunrise Office Supply</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Mar 24, 2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$312.75</td><td style="border:1px solid #cfc8b8;padding:8px 10px">pending</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2045</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Kestrel Logistics</td><td style="border:1px solid #cfc8b8;padding:8px 10px">03/29/2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$4,150.00</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Paid</td></tr>
+              </table>
+              <p style="margin:18px 0 0;font-size:14px">Page: <b style="margin-right:12px">1</b><span style="color:#1e5c3a;text-decoration:underline;margin-right:12px">2</span><span style="color:#1e5c3a;text-decoration:underline;margin-right:12px">3</span></p>
+              <p style="margin:14px 0 0;font-size:14px"><span style="color:#1e5c3a;text-decoration:underline">Sign out</span></p>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,rgba(5,7,10,.5));pointer-events:none"></div>
+        </div>
+      </div>
+
+      <!-- activity pane -->
+      <div style="display:flex;flex-direction:column;min-height:0;background:rgba(4,6,10,.35)">
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px 6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 54px);mask-image:linear-gradient(180deg,transparent 0,#000 54px)">
+          <div style="position:absolute;left:33px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.11) 9%,rgba(255,255,255,.11) 88%,transparent)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;justify-content:flex-end;flex:0 0 auto;gap:10px">
+
+            <div style="display:flex;align-items:center;gap:12px;margin:2px 0"><span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6E7A8C;letter-spacing:.04em">Launching browser…</span><span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span></div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">01</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,196,107,.09);border:1px solid rgba(255,196,107,.26);color:#FFC46B">navigate → /sandbox</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Opening the client billing portal. Sign-in pages for demo environments usually print the credentials on the page itself, so I’ll read before I type.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">02</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">type "demo" into [1]</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">The notice at the top gives me the username and password outright — no guessing needed.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">03</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">click [3] 'Sign in'</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">I’m in. The invoices table shows 5 records on page 1 of 3, with visibly inconsistent date and currency formats. I’ll record these and move to page 2.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:10px;font-weight:700;letter-spacing:.03em;color:#7FB8FF;border:1px solid rgba(127,184,255,.4);background:rgba(8,18,32,.9)">YOU</span>
+              <div style="padding:10px 13px 11px;border-radius:12px;background:rgba(127,184,255,.09);border:1px solid rgba(127,184,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)">
+                <p style="margin:0;font-size:13.5px;line-height:1.55;color:#D5E4F8;text-wrap:pretty"><span style="font-weight:650;color:#9CC8FF">You said:</span> “also note which vendor has the highest total”</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#FF8388;border:1px solid rgba(255,107,112,.42);background:rgba(24,8,10,.9)">04</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">click [8]</code>
+                  <span style="color:#FF7A7F;font-size:13px;font-weight:600">✗</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Noted — I’ll keep a running total per vendor and call out the highest at the end. Going to page 2 via the pager link now.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span></span>
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,107,112,.09);border:1px solid rgba(255,107,112,.34)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;color:#0C0507;background:#FF8388;border-radius:4px;padding:3px 6px;flex:0 0 auto;margin-top:1px">RECOVERING</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;color:#FFB6B9">click failed: element [8] no longer exists on this page</span>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">05</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">scroll down</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">The page shifted after it finished loading, so the numbering I had was stale. Scrolling the pager back into view to re-read the element list.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">06</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">click [12]</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Page 2 is open with 5 more invoices, including a credit note recorded as a negative amount. That one is worth flagging rather than dropping.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="position:relative;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:#04120C;background:var(--acc,#4BF0A8);box-shadow:0 0 20px rgba(75,240,168,.5)">07</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(75,240,168,.075),rgba(75,240,168,.02));border:1px solid rgba(75,240,168,.26);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 0 30px rgba(75,240,168,.07)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">click [13]</code>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5FEFAE"><span style="width:5px;height:5px;border-radius:50%;background:var(--acc,#4BF0A8);animation:gbpulse 1.4s ease-in-out infinite"></span>acting…</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#D3DEEC;text-wrap:pretty">Two of eleven invoices so far use a European decimal comma. I’ll parse those as EUR and keep the original currency rather than converting without a rate. Opening page 3.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div style="flex:0 0 auto;display:flex;gap:9px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.055));backdrop-filter:blur(18px)">
+          <div style="flex:1;display:flex;align-items:center;height:38px;padding:0 13px;border-radius:9px;border:1px solid rgba(127,184,255,.24);background:rgba(8,11,16,.6);font-size:13.5px;color:#7C879A">Steer the agent mid-run…</div>
+          <span style="display:flex;align-items:center;padding:0 18px;height:38px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.055)">Send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ 03 WAITING FOR APPROVAL ═══════════════════ -->
+<div style="display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:baseline;gap:14px;padding-left:4px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:#FFC46B">03</span>
+    <span style="font-size:19px;font-weight:600;letter-spacing:-.01em;color:#E9EEF5">Waiting for you</span>
+    <span style="font-size:13.5px;color:#8E9AAD">Approve-each-step mode. The run is frozen until you answer.</span>
+  </div>
+</sc-if>
+
+<div data-screen-label="03 Waiting for approval" style="position:relative;width:1440px;height:900px;overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);box-shadow:0 50px 130px rgba(0,0,0,.7);background:#05070a;color:#E9EEF5;font-size:14px">
+  <div style="position:absolute;inset:0;opacity:{{ glow }};background:radial-gradient(980px 620px at 16% -14%,rgba(255,196,107,.10),transparent 62%),radial-gradient(880px 600px at 104% 116%,rgba(90,140,255,.09),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;opacity:{{ gridOpacity }};background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;height:56px;flex:0 0 56px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px)">
+      <div style="display:flex;align-items:baseline;gap:11px">
+        <span style="font-size:17px;font-weight:650;letter-spacing:-.01em;color:#F2F6FB"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 16px rgba(75,240,168,.6);margin-right:7px">▣</span>Glassbox</span>
+        <span style="font-size:13px;color:#8E9AAD">— a browser agent you can see through</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8;letter-spacing:-.02em">3.1k tokens</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#FFC46B;padding:5px 13px 5px 10px;border-radius:999px;border:1px solid rgba(255,196,107,.42);background:rgba(255,196,107,.11);box-shadow:0 0 22px rgba(255,196,107,.14)"><span style="position:relative;display:inline-flex;width:7px;height:7px"><span style="position:absolute;inset:0;border-radius:50%;background:#FFC46B;animation:gbpulse 1.9s ease-in-out infinite"></span><span style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(255,196,107,.5);animation:gbring 2.2s ease-out infinite"></span></span>waiting for you</span>
+      </div>
+    </div>
+
+    <div style="flex:0 0 auto;padding:14px 22px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));backdrop-filter:blur(18px)">
+      <div style="position:relative;height:62px;border-radius:10px;border:1px solid rgba(255,255,255,.09);background:rgba(8,11,16,.42);padding:10px 14px;overflow:hidden">
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#AEB9C9;text-wrap:pretty">Log in to the billing portal at /sandbox (credentials are shown on the sign-in page). Collect every invoice across all pages. Normalize into one table with columns: invoice number, vendor, date (ISO 8601), amount, currency, status. Flag anything unusual.</p>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(8,11,16,.75))"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <div style="display:flex;border:1px solid rgba(255,196,107,.34);border-radius:9px;overflow:hidden;background:rgba(8,11,16,.5)">
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;color:#828E9F">Autopilot</span>
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;font-weight:500;color:#FFD08A;background:rgba(255,196,107,.13);border-left:1px solid rgba(255,196,107,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)">Approve each step</span>
+        </div>
+        <span style="padding:8px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));opacity:.35">Run agent</span>
+        <span style="padding:8px 16px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)">Pause</span>
+        <span style="padding:8px 16px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF7A7F;border:1px solid rgba(255,107,112,.42);background:rgba(255,107,112,.09)">Stop</span>
+        <div style="flex:1;display:flex;align-items:center;gap:12px;margin-left:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#78849A;white-space:nowrap">step 3 / 40 max</span>
+          <div style="position:relative;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:7.5%;border-radius:2px;background:linear-gradient(90deg,rgba(255,196,107,.3),#FFC46B);box-shadow:0 0 14px rgba(255,196,107,.5)"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FFC46B;white-space:nowrap">paused for review</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:grid;grid-template-columns:58% 42%;min-height:0">
+
+      <div style="display:flex;flex-direction:column;min-height:0;border-right:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:11px;height:40px;flex:0 0 40px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8">
+          <span style="position:relative;display:inline-flex;width:8px;height:8px"><span style="position:absolute;inset:0;border-radius:50%;background:#FF4D57;box-shadow:0 0 10px rgba(255,77,87,.9);animation:gbpulse 1.6s ease-in-out infinite"></span><span style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(255,77,87,.5);animation:gbring 1.8s ease-out infinite"></span></span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">glassbox.up.railway.app/sandbox</span>
+          <span style="color:#FFC46B;font-weight:500">step 3</span>
+        </div>
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:#f4f1ea">
+          <div style="position:absolute;top:0;left:0;width:1280px;transform:scale(.6525);transform-origin:top left;font-family:Georgia,'Times New Roman',serif;color:#2b2b2b;background:#f4f1ea;min-height:1060px">
+            <div style="background:#1e3a2f;color:#f4f1ea;padding:14px 28px;font-size:20px">Meridian Supply Co. <span style="opacity:.7;font-size:12px;margin-left:10px">client billing portal</span></div>
+            <div style="max-width:860px;margin:30px auto;background:#fff;padding:28px;border:1px solid #d8d2c4;box-shadow:2px 2px 0 #d8d2c4">
+              <h2 style="margin:0 0 14px;font-size:24px;font-weight:700">Client sign in</h2>
+              <p style="background:#fdf6dd;border:1px solid #e0d49a;padding:10px;font-size:13px;margin:0 0 16px">Demo environment. Use username <b>demo</b> and password <b>meridian2026</b>.</p>
+              <label style="display:block;margin:12px 0 4px;font-size:14px">Username</label>
+              <input value="demo" readonly style="padding:8px;border:1px solid #b8b0a0;width:240px;font-size:14px;font-family:Georgia,serif;color:#2b2b2b;background:#fff">
+              <label style="display:block;margin:12px 0 4px;font-size:14px">Password</label>
+              <input value="••••••••••••" readonly style="padding:8px;border:1px solid #b8b0a0;width:240px;font-size:14px;font-family:Georgia,serif;color:#2b2b2b;background:#fff">
+              <p style="margin:16px 0 0"><span style="display:inline-block;background:#1e3a2f;color:#fff;padding:9px 18px;font-size:14px;outline:3px solid rgba(255,196,107,.85);outline-offset:3px">Sign in</span></p>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,rgba(5,7,10,.5));pointer-events:none"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;min-height:0;background:rgba(4,6,10,.35)">
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px 6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 54px);mask-image:linear-gradient(180deg,transparent 0,#000 54px)">
+          <div style="position:absolute;left:33px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.11) 9%,rgba(255,255,255,.11) 88%,transparent)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;justify-content:flex-end;flex:0 0 auto;gap:10px">
+
+            <div style="display:flex;align-items:center;gap:12px;margin:2px 0"><span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6E7A8C;letter-spacing:.04em">Approve-each-step is on — nothing runs without you</span><span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span></div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">01</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,196,107,.09);border:1px solid rgba(255,196,107,.26);color:#FFC46B">navigate → /sandbox</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Opening the client billing portal. Sign-in pages for demo environments usually print the credentials on the page itself, so I’ll read before I type.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:10px;font-weight:700;letter-spacing:.03em;color:#7FB8FF;border:1px solid rgba(127,184,255,.4);background:rgba(8,18,32,.9)">YOU</span>
+              <div style="padding:10px 13px 11px;border-radius:12px;background:rgba(127,184,255,.09);border:1px solid rgba(127,184,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)">
+                <p style="margin:0;font-size:13.5px;line-height:1.55;color:#D5E4F8"><span style="font-weight:650;color:#9CC8FF">You</span> approved this step.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">02</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">type "demo" into [1]</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">The notice at the top gives me the username and password outright — no guessing needed.</p>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9);box-shadow:0 0 14px rgba(75,240,168,.14)">03</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">type "meridian2026" into [2]</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Both fields are filled. Submitting the form is the first action that changes something on their side, so I’ll wait for your go-ahead.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- approval card -->
+        <div style="flex:0 0 auto;position:relative;padding:14px 18px 15px;border-top:1px solid rgba(255,196,107,.5);background:linear-gradient(180deg,rgba(255,196,107,.10),rgba(255,196,107,.05));backdrop-filter:blur(20px);box-shadow:0 -22px 44px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,196,107,.22)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+            <span style="width:6px;height:6px;border-radius:50%;background:#FFC46B;box-shadow:0 0 10px rgba(255,196,107,.9);animation:gbpulse 1.9s ease-in-out infinite"></span>
+            <span style="font-size:13px;font-weight:600;color:#FFD08A;letter-spacing:.01em">The agent wants to:</span>
+          </div>
+          <code style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:13px;padding:7px 12px;border-radius:8px;background:rgba(6,8,12,.6);border:1px solid rgba(255,196,107,.38);color:#FFE0B0">click [3] 'Sign in'</code>
+          <p style="margin:9px 0 0;font-size:12.5px;line-height:1.5;color:#C7B79A;text-wrap:pretty">Submits the sign-in form with the demo credentials from the page notice.</p>
+          <div style="display:flex;gap:9px;margin-top:12px">
+            <span style="padding:9px 20px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 24px rgba(75,240,168,.35),inset 0 1px 0 rgba(255,255,255,.35)">Approve</span>
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#E4D9C6;border:1px solid rgba(255,196,107,.4);background:rgba(255,196,107,.07)">Reject…</span>
+            <span style="margin-left:auto;align-self:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9C8F79">↵ approve · esc reject</span>
+          </div>
+        </div>
+
+        <div style="flex:0 0 auto;display:flex;gap:9px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.055));backdrop-filter:blur(18px)">
+          <div style="flex:1;display:flex;align-items:center;height:38px;padding:0 13px;border-radius:9px;border:1px solid rgba(127,184,255,.24);background:rgba(8,11,16,.6);font-size:13.5px;color:#7C879A">Steer the agent mid-run…</div>
+          <span style="display:flex;align-items:center;padding:0 18px;height:38px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.055)">Send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 03b reject expanded -->
+<div style="display:flex;align-items:flex-start;gap:22px;padding-left:4px;margin-top:6px">
+  <div style="display:flex;flex-direction:column;gap:10px;width:605px">
+    <div style="display:flex;align-items:baseline;gap:12px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:#FFC46B">03b</span>
+      <span style="font-size:15px;font-weight:600;color:#E9EEF5">Reject, expanded</span>
+    </div>
+    <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 24px 60px rgba(0,0,0,.6);background:#05070a">
+      <div style="padding:14px 18px 15px;border-top:1px solid rgba(255,196,107,.5);background:linear-gradient(180deg,rgba(255,196,107,.10),rgba(255,196,107,.05))">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#FFC46B;box-shadow:0 0 10px rgba(255,196,107,.9)"></span>
+          <span style="font-size:13px;font-weight:600;color:#FFD08A">The agent wants to:</span>
+        </div>
+        <code style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:13px;padding:7px 12px;border-radius:8px;background:rgba(6,8,12,.6);border:1px solid rgba(255,196,107,.38);color:#FFE0B0">click [3] 'Sign in'</code>
+        <div style="display:flex;gap:9px;margin-top:12px">
+          <div style="flex:1;display:flex;align-items:center;height:38px;padding:0 13px;border-radius:9px;border:1px solid rgba(255,196,107,.55);background:rgba(6,8,12,.65);font-size:13.5px;color:#EAD9BC;box-shadow:0 0 0 3px rgba(255,196,107,.10)">Use the read-only viewer account instead<span style="display:inline-block;width:1.5px;height:15px;background:#FFC46B;margin-left:3px;animation:gbcaret 1.1s step-end infinite"></span></div>
+          <span style="display:flex;align-items:center;padding:0 18px;height:38px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF7A7F;border:1px solid rgba(255,107,112,.45);background:rgba(255,107,112,.10)">Send</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:12.5px;line-height:1.5;color:#C7B79A;text-wrap:pretty">What you type goes into the agent’s context as an instruction — it doesn’t restart the run.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ 04 RESULT ═══════════════════ -->
+<div style="display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:baseline;gap:14px;padding-left:4px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--acc,#4BF0A8)">04</span>
+    <span style="font-size:19px;font-weight:600;letter-spacing:-.01em;color:#E9EEF5">Result</span>
+    <span style="font-size:13.5px;color:#8E9AAD">The run ends in an artifact, not a chat message. Feed stays visible behind the sheet.</span>
+  </div>
+</sc-if>
+
+<div data-screen-label="04 Result" style="position:relative;width:1440px;height:900px;overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);box-shadow:0 50px 130px rgba(0,0,0,.7);background:#05070a;color:#E9EEF5;font-size:14px">
+  <div style="position:absolute;inset:0;opacity:{{ glow }};background:radial-gradient(980px 620px at 16% -14%,rgba(75,240,168,.13),transparent 62%),radial-gradient(880px 600px at 104% 116%,rgba(90,140,255,.10),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;opacity:{{ gridOpacity }};background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;height:56px;flex:0 0 56px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px)">
+      <div style="display:flex;align-items:baseline;gap:11px">
+        <span style="font-size:17px;font-weight:650;letter-spacing:-.01em;color:#F2F6FB"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 16px rgba(75,240,168,.6);margin-right:7px">▣</span>Glassbox</span>
+        <span style="font-size:13px;color:#8E9AAD">— a browser agent you can see through</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8;letter-spacing:-.02em">11.6k tokens</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#5FEFAE;padding:5px 13px 5px 10px;border-radius:999px;border:1px solid rgba(75,240,168,.38);background:rgba(75,240,168,.10);box-shadow:0 0 22px rgba(75,240,168,.14)"><span style="width:6px;height:6px;border-radius:50%;background:var(--acc,#4BF0A8);box-shadow:0 0 8px rgba(75,240,168,.8)"></span>done</span>
+      </div>
+    </div>
+
+    <div style="flex:0 0 auto;padding:14px 22px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));backdrop-filter:blur(18px)">
+      <div style="position:relative;height:62px;border-radius:10px;border:1px solid rgba(255,255,255,.09);background:rgba(8,11,16,.42);padding:10px 14px;overflow:hidden">
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#AEB9C9;text-wrap:pretty">Log in to the billing portal at /sandbox (credentials are shown on the sign-in page). Collect every invoice across all pages. Normalize into one table with columns: invoice number, vendor, date (ISO 8601), amount, currency, status. Flag anything unusual.</p>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(8,11,16,.75))"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <div style="display:flex;border:1px solid rgba(255,255,255,.11);border-radius:9px;overflow:hidden;background:rgba(8,11,16,.5)">
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;font-weight:500;color:#EAF0F7;background:rgba(255,255,255,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)">Autopilot</span>
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;color:#828E9F;border-left:1px solid rgba(255,255,255,.09)">Approve each step</span>
+        </div>
+        <span style="padding:8px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 22px rgba(75,240,168,.32),inset 0 1px 0 rgba(255,255,255,.35)">Run agent</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#8E9AAD;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);opacity:.5">Pause</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF6B70;border:1px solid rgba(255,107,112,.30);background:rgba(255,107,112,.05);opacity:.5">Stop</span>
+        <div style="flex:1;display:flex;align-items:center;gap:12px;margin-left:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#78849A;white-space:nowrap">7 steps</span>
+          <div style="position:relative;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden">
+            <div style="position:absolute;inset:0;border-radius:2px;background:linear-gradient(90deg,rgba(75,240,168,.35),var(--acc,#4BF0A8));box-shadow:0 0 14px rgba(75,240,168,.4)"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5FEFAE;white-space:nowrap">complete</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:grid;grid-template-columns:58% 42%;min-height:0">
+
+      <div style="display:flex;flex-direction:column;min-height:0;border-right:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:11px;height:40px;flex:0 0 40px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:12px;color:#78849A">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">glassbox.up.railway.app/sandbox/invoices?page=3</span>
+          <span style="color:#78849A">step 7 · browser closed</span>
+        </div>
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:#f4f1ea">
+          <div style="position:absolute;top:0;left:0;width:1280px;transform:scale(.6525);transform-origin:top left;font-family:Georgia,'Times New Roman',serif;color:#2b2b2b;background:#f4f1ea;min-height:1060px">
+            <div style="background:#1e3a2f;color:#f4f1ea;padding:14px 28px;font-size:20px">Meridian Supply Co. <span style="opacity:.7;font-size:12px;margin-left:10px">client billing portal</span></div>
+            <div style="max-width:860px;margin:30px auto;background:#fff;padding:28px;border:1px solid #d8d2c4;box-shadow:2px 2px 0 #d8d2c4">
+              <h2 style="margin:0 0 14px;font-size:24px;font-weight:700">Invoices</h2>
+              <p style="background:#fdf6dd;border:1px solid #e0d49a;padding:10px;font-size:13px;margin:0 0 16px">Records are shown exactly as entered by our regional offices. Formats may vary.</p>
+              <table style="border-collapse:collapse;width:100%;font-size:14px">
+                <tr><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Invoice #</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Vendor</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Date</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Amount</th><th style="border:1px solid #cfc8b8;padding:8px 10px;text-align:left;background:#ece7db">Status</th></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2050</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Sunrise Office Supply</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Apr 18, 2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$89.99</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Paid</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2050</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Kestrel Logistics</td><td style="border:1px solid #cfc8b8;padding:8px 10px">04/21/2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$6,720.00</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Pending</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2052</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Acme Industrial</td><td style="border:1px solid #cfc8b8;padding:8px 10px">2026-04-25</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$12,050.00</td><td style="border:1px solid #cfc8b8;padding:8px 10px">Overdue</td></tr>
+                <tr><td style="border:1px solid #cfc8b8;padding:8px 10px"><span style="color:#1e5c3a;text-decoration:underline">INV-2053</span></td><td style="border:1px solid #cfc8b8;padding:8px 10px">Northwind Traders</td><td style="border:1px solid #cfc8b8;padding:8px 10px">04/28/2026</td><td style="border:1px solid #cfc8b8;padding:8px 10px">$980.25</td><td style="border:1px solid #cfc8b8;padding:8px 10px">pending</td></tr>
+              </table>
+              <p style="margin:18px 0 0;font-size:14px">Page: <span style="color:#1e5c3a;text-decoration:underline;margin-right:12px">1</span><span style="color:#1e5c3a;text-decoration:underline;margin-right:12px">2</span><b style="margin-right:12px">3</b></p>
+              <p style="margin:14px 0 0;font-size:14px"><span style="color:#1e5c3a;text-decoration:underline">Sign out</span></p>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,rgba(5,7,10,.5));pointer-events:none"></div>
+        </div>
+      </div>
+
+      <div style="position:relative;display:flex;flex-direction:column;min-height:0;background:rgba(4,6,10,.35)">
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px 6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 44px);mask-image:linear-gradient(180deg,transparent 0,#000 44px)">
+          <div style="position:absolute;left:33px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.11) 9%,rgba(255,255,255,.11) 100%)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;justify-content:flex-end;flex:0 0 auto;gap:10px">
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#5FEFAE;border:1px solid rgba(75,240,168,.35);background:rgba(6,20,15,.9)">06</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);color:#A9CBFF">click [13]</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Page 3 has the last 4 invoices. That is all 14 records across the three pages, so I have everything I need to normalize.</p>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:#04120C;background:var(--acc,#4BF0A8);box-shadow:0 0 20px rgba(75,240,168,.5)">07</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(75,240,168,.075),rgba(75,240,168,.02));border:1px solid rgba(75,240,168,.26)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(75,240,168,.10);border:1px solid rgba(75,240,168,.32);color:#5FEFAE">finish (success)</code>
+                  <span style="color:var(--acc,#4BF0A8);font-size:13px;font-weight:600">✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- result sheet -->
+        <div style="position:absolute;left:0;right:0;bottom:0;height:636px;display:flex;flex-direction:column;border-top:1px solid rgba(75,240,168,.45);background:linear-gradient(180deg,rgba(10,16,14,.93),rgba(6,9,13,.97));backdrop-filter:blur(26px);box-shadow:0 -30px 70px rgba(0,0,0,.6),inset 0 1px 0 rgba(75,240,168,.25)">
+          <div style="position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--acc,#4BF0A8),transparent);box-shadow:0 0 18px rgba(75,240,168,.7)"></div>
+          <div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px 0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+              <span style="display:inline-flex;align-items:center;gap:9px;font-size:16px;font-weight:650;color:#5FEFAE;letter-spacing:-.01em;white-space:nowrap"><span style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(75,240,168,.16);border:1px solid rgba(75,240,168,.5);font-size:11px;color:var(--acc,#4BF0A8)">✓</span>Goal completed</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#8E9AAD">7 steps · 16s · 11.6k tokens</span>
+            </div>
+            <p style="margin:10px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">All 14 invoices across three pages are normalized into one table with ISO dates and currency split out from the amount. Six of them needed a judgement call, and those are listed below the table rather than silently corrected.</p>
+
+            <div style="margin-top:10px;border:1px solid rgba(255,255,255,.09);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.02)">
+              <table style="border-collapse:collapse;width:100%;font-size:12.5px">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">INVOICE #</th>
+                    <th style="text-align:left;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">VENDOR</th>
+                    <th style="text-align:left;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">DATE</th>
+                    <th style="text-align:right;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">AMOUNT</th>
+                    <th style="text-align:left;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">CUR</th>
+                    <th style="text-align:left;font-weight:600;color:#AEB9C9;background:rgba(255,255,255,.05);padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.09);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE">INV-2043</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#C6D0DE">Baltic Freight GmbH</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-03-21</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE;text-align:right">2450.00</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9AA6B8">EUR</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#FF9B9F">Overdue</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE">INV-2046</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#C6D0DE">Acme Industrial</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-04-02</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE;text-align:right">2300.00</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9AA6B8">USD</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#FFC46B">Pending</td>
+                  </tr>
+                  <tr style="background:rgba(255,196,107,.05)">
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#FFD08A">CN-0107</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#C6D0DE">Acme Industrial</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-04-05</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#FF9B9F;text-align:right">−450.00</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9AA6B8">USD</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#FFC46B">Credit note</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE">INV-2047</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#C6D0DE">Mumbai Textiles Pvt</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-04-05</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE;text-align:right">198000.00</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9AA6B8">INR</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#5FEFAE">Paid</td>
+                  </tr>
+                  <tr style="background:rgba(127,184,255,.05)">
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9CC8FF">INV-2050</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#C6D0DE">Sunrise Office Supply</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-04-18</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#DCE4EE;text-align:right">89.99</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);font-family:'JetBrains Mono',monospace;color:#9AA6B8">USD</td>
+                    <td style="padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.055);color:#5FEFAE">Paid</td>
+                  </tr>
+                  <tr style="background:rgba(127,184,255,.05)">
+                    <td style="padding:6px 9px;font-family:'JetBrains Mono',monospace;color:#9CC8FF">INV-2050</td>
+                    <td style="padding:6px 9px;color:#C6D0DE">Kestrel Logistics</td>
+                    <td style="padding:6px 9px;font-family:'JetBrains Mono',monospace;color:#C6D0DE">2026-04-21</td>
+                    <td style="padding:6px 9px;font-family:'JetBrains Mono',monospace;color:#DCE4EE;text-align:right">6720.00</td>
+                    <td style="padding:6px 9px;font-family:'JetBrains Mono',monospace;color:#9AA6B8">USD</td>
+                    <td style="padding:6px 9px;color:#FFC46B">Pending</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 9px;background:rgba(255,255,255,.025);border-top:1px solid rgba(255,255,255,.07)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#78849A">showing 6 of 14 rows</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#78849A">scroll for the rest</span>
+              </div>
+            </div>
+
+            <div style="margin-top:11px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+                <span style="font-size:12.5px;font-weight:650;color:#FFC46B;letter-spacing:.01em">The agent flagged</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#0C0805;background:#FFC46B;border-radius:4px;padding:2px 5px">4</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#FFC46B;font-size:12px;line-height:1.6">▸</span><span style="font-size:12.5px;line-height:1.55;color:#B7C2D1;text-wrap:pretty"><b style="color:#DCE4EE;font-weight:600">INV-2050 appears twice</b> with different vendors and amounts — Sunrise Office Supply ($89.99) and Kestrel Logistics ($6,720.00). Reads like a numbering collision, not a double payment. Both kept.</span></div>
+                <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#FFC46B;font-size:12px;line-height:1.6">▸</span><span style="font-size:12.5px;line-height:1.55;color:#B7C2D1;text-wrap:pretty"><b style="color:#DCE4EE;font-weight:600">CN-0107 is a credit note</b>, kept as a negative amount so vendor totals stay correct.</span></div>
+                <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#FFC46B;font-size:12px;line-height:1.6">▸</span><span style="font-size:12.5px;line-height:1.55;color:#B7C2D1;text-wrap:pretty"><b style="color:#DCE4EE;font-weight:600">Four date formats, three currencies.</b> Dates normalized to ISO 8601; amounts left in their original currency because the portal publishes no FX rate.</span></div>
+                <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#7FB8FF;font-size:12px;line-height:1.6">▸</span><span style="font-size:12.5px;line-height:1.55;color:#B7C2D1;text-wrap:pretty"><b style="color:#9CC8FF;font-weight:600">You asked for the highest total:</b> Acme Industrial, $22,800.00 across 4 invoices, net of the credit note.</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)">
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 24px rgba(75,240,168,.35),inset 0 1px 0 rgba(255,255,255,.35)">Download CSV</span>
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.055)">New run</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6E7A8C">glassbox-result.csv · 14 rows</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ 05 FAILED ═══════════════════ -->
+<div style="display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ showCaptions }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:baseline;gap:14px;padding-left:4px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;color:#FF7A7F">05</span>
+    <span style="font-size:19px;font-weight:600;letter-spacing:-.01em;color:#E9EEF5">Failed</span>
+    <span style="font-size:13.5px;color:#8E9AAD">No fake success. It says what it tried, what it got, and why it stopped.</span>
+  </div>
+</sc-if>
+
+<div data-screen-label="05 Failed" style="position:relative;width:1440px;height:900px;overflow:hidden;border-radius:16px;border:1px solid rgba(255,255,255,.10);box-shadow:0 50px 130px rgba(0,0,0,.7);background:#05070a;color:#E9EEF5;font-size:14px">
+  <div style="position:absolute;inset:0;opacity:{{ glow }};background:radial-gradient(980px 620px at 16% -14%,rgba(255,107,112,.11),transparent 62%),radial-gradient(880px 600px at 104% 116%,rgba(90,140,255,.08),transparent 60%)"></div>
+  <div style="position:absolute;inset:0;opacity:{{ gridOpacity }};background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:44px 44px"></div>
+
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;height:56px;flex:0 0 56px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px)">
+      <div style="display:flex;align-items:baseline;gap:11px">
+        <span style="font-size:17px;font-weight:650;letter-spacing:-.01em;color:#F2F6FB"><span style="color:var(--acc,#4BF0A8);text-shadow:0 0 16px rgba(75,240,168,.6);margin-right:7px">▣</span>Glassbox</span>
+        <span style="font-size:13px;color:#8E9AAD">— a browser agent you can see through</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9AA6B8;letter-spacing:-.02em">34.2k tokens</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#FF9B9F;padding:5px 13px 5px 10px;border-radius:999px;border:1px solid rgba(255,107,112,.45);background:rgba(255,107,112,.11)"><span style="width:6px;height:6px;border-radius:50%;background:#FF6B70;box-shadow:0 0 8px rgba(255,107,112,.8)"></span>done</span>
+      </div>
+    </div>
+
+    <div style="flex:0 0 auto;padding:14px 22px 13px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));backdrop-filter:blur(18px)">
+      <div style="position:relative;height:62px;border-radius:10px;border:1px solid rgba(255,255,255,.09);background:rgba(8,11,16,.42);padding:10px 14px;overflow:hidden">
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#AEB9C9;text-wrap:pretty">Log in to the billing portal at /sandbox (credentials are shown on the sign-in page). Collect every invoice across all pages. Normalize into one table with columns: invoice number, vendor, date (ISO 8601), amount, currency, status. Flag anything unusual.</p>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(8,11,16,.75))"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <div style="display:flex;border:1px solid rgba(255,255,255,.11);border-radius:9px;overflow:hidden;background:rgba(8,11,16,.5)">
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;font-weight:500;color:#EAF0F7;background:rgba(255,255,255,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)">Autopilot</span>
+          <span style="flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:13px;color:#828E9F;border-left:1px solid rgba(255,255,255,.09)">Approve each step</span>
+        </div>
+        <span style="padding:8px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 22px rgba(75,240,168,.32),inset 0 1px 0 rgba(255,255,255,.35)">Run agent</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#8E9AAD;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);opacity:.5">Pause</span>
+        <span style="padding:8px 16px;font-size:13.5px;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#FF6B70;border:1px solid rgba(255,107,112,.30);background:rgba(255,107,112,.05);opacity:.5">Stop</span>
+        <div style="flex:1;display:flex;align-items:center;gap:12px;margin-left:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#78849A;white-space:nowrap">23 steps</span>
+          <div style="position:relative;flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:57.5%;border-radius:2px;background:linear-gradient(90deg,rgba(255,107,112,.3),#FF6B70)"></div>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF9B9F;white-space:nowrap">stopped at step 23</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:grid;grid-template-columns:58% 42%;min-height:0">
+
+      <div style="display:flex;flex-direction:column;min-height:0;border-right:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:11px;height:40px;flex:0 0 40px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:12px;color:#78849A">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.16)"></span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">glassbox.up.railway.app/sandbox/invoices?page=3</span>
+          <span style="color:#FF9B9F">HTTP 500</span>
+        </div>
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:#fff">
+          <div style="position:absolute;top:0;left:0;width:1280px;transform:scale(.6525);transform-origin:top left;background:#fff;min-height:1060px;padding:36px 40px">
+            <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:22px;color:#111">Internal Server Error</div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,rgba(5,7,10,.5));pointer-events:none"></div>
+        </div>
+      </div>
+
+      <div style="position:relative;display:flex;flex-direction:column;min-height:0;background:rgba(4,6,10,.35)">
+        <div style="position:relative;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px 6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 44px);mask-image:linear-gradient(180deg,transparent 0,#000 44px)">
+          <div style="position:absolute;left:33px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.11) 9%,rgba(255,255,255,.11) 100%)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;justify-content:flex-end;flex:0 0 auto;gap:10px">
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:#FF8388;border:1px solid rgba(255,107,112,.42);background:rgba(24,8,10,.9)">22</span>
+              <div style="padding:11px 13px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.017));border:1px solid rgba(255,255,255,.08)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 9px;border-radius:7px;background:rgba(255,196,107,.09);border:1px solid rgba(255,196,107,.26);color:#FFC46B">navigate → /sandbox/invoices?page=3</code>
+                  <span style="color:#FF7A7F;font-size:13px;font-weight:600">✗</span>
+                </div>
+                <p style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#C6D0DE;text-wrap:pretty">Fourth attempt at page 3, this time by typing the URL directly instead of using the pager link. Same result.</p>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start">
+              <span></span>
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,107,112,.16);border:1px solid rgba(255,107,112,.45)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;color:#170406;background:#FF6B70;border-radius:4px;padding:3px 6px;flex:0 0 auto;margin-top:1px">FAILED</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;color:#FFB6B9">page load returned HTTP 500 — server error, no content to read</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- failure sheet -->
+        <div style="position:absolute;left:0;right:0;bottom:0;height:392px;display:flex;flex-direction:column;border-top:1px solid rgba(255,107,112,.5);background:linear-gradient(180deg,rgba(18,10,12,.94),rgba(6,9,13,.97));backdrop-filter:blur(26px);box-shadow:0 -30px 70px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,107,112,.25)">
+          <div style="position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,#FF6B70,transparent);box-shadow:0 0 18px rgba(255,107,112,.6)"></div>
+          <div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px 0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+              <span style="display:inline-flex;align-items:center;gap:9px;font-size:16px;font-weight:650;color:#FF9B9F;letter-spacing:-.01em;white-space:nowrap"><span style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:rgba(255,107,112,.16);border:1px solid rgba(255,107,112,.5);font-size:11px;color:#FF7A7F">✗</span>Finished without completing the goal</span>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#8E9AAD;margin-top:5px">23 steps · 1m 48s · 34.2k tokens · 6 consecutive failures</div>
+            <p style="margin:12px 0 0;font-size:13.5px;line-height:1.6;color:#C6D0DE;text-wrap:pretty">I signed in and collected all 10 invoices from pages 1 and 2 without trouble. Page 3 returned a server error every time I opened it — four attempts, first through the pager link, then by typing the URL, then after going back and reloading. Nothing on the page changed in between, so retrying again would just burn steps.</p>
+            <p style="margin:9px 0 0;font-size:13.5px;line-height:1.6;color:#C6D0DE;text-wrap:pretty">I stopped rather than hand you a table that quietly leaves out four records. The 10 invoices I did read are below, and the portal may well work again in a few minutes.</p>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:13px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#8E9AAD">PARTIAL</span>
+              <span style="font-size:12.5px;color:#C6D0DE">10 of 14 invoices captured · pages 1–2 complete · page 3 unreachable</span>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)">
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#04120C;background:linear-gradient(180deg,#63F5B8,var(--acc,#4BF0A8));box-shadow:0 0 24px rgba(75,240,168,.3),inset 0 1px 0 rgba(255,255,255,.35)">Retry this goal</span>
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.055)">Download partial CSV</span>
+            <span style="padding:9px 18px;font-size:13.5px;font-weight:500;white-space:nowrap;flex:0 0 auto;border-radius:9px;color:#DCE4EE;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.055)">New run</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4BF0A8&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#4BF0A8&quot;,&quot;#3EE9F2&quot;,&quot;#9B8CFF&quot;],&quot;section&quot;:&quot;Theme&quot;},&quot;glow&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:1.6,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;showGrid&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;showCaptions&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Canvas&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    return {
+      acc: p.accent ?? '#4BF0A8',
+      glow: p.glow ?? 1,
+      gridOpacity: (p.showGrid ?? true) ? 1 : 0,
+      showCaptions: p.showCaptions ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>

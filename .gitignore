@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+node_modules/
+backend/static/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+.DS_Store
