@@ -6,7 +6,20 @@ Elements get a data-gbid attribute so actions can target them precisely.
 """
 
 import base64
+import os
 from playwright.async_api import async_playwright, TimeoutError as PWTimeout
+
+# Public sites like SEC EDGAR gate datacenter traffic behind a fair-access
+# wall and demand a *declared* User-Agent (name + contact), not a browser
+# masquerade. A browser-looking UA from a cloud IP is the worst combination
+# and gets a site-wide block. This default declares who we are and how to
+# reach us; override per-deploy with GLASSBOX_USER_AGENT if a target needs
+# something else — no rebuild required.
+DEFAULT_UA = os.environ.get(
+    "GLASSBOX_USER_AGENT",
+    "Glassbox-Agent/1.0 (autonomous browser agent; "
+    "contact: glassbox-demo@example.com)",
+)
 
 DISTILL_JS = """
 () => {
@@ -77,11 +90,7 @@ class BrowserSession:
         )
         ctx = await self.browser.new_context(
             viewport={"width": 1280, "height": 800},
-            user_agent=(
-                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/131.0 Safari/537.36 "
-                "Glassbox-agent (contact: demo@glassbox.run)"
-            ),
+            user_agent=DEFAULT_UA,
         )
         ctx.set_default_timeout(12_000)
         self.page = await ctx.new_page()
