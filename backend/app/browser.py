@@ -7,7 +7,7 @@ Elements get a data-gbid attribute so actions can target them precisely.
 
 import base64
 import os
-from playwright.async_api import async_playwright, TimeoutError as PWTimeout
+from playwright.async_api import async_playwright
 
 # Public sites like SEC EDGAR gate datacenter traffic behind a fair-access
 # wall and demand a *declared* User-Agent (name + contact), not a browser
@@ -107,7 +107,11 @@ class BrowserSession:
     # ---- observations -------------------------------------------------
 
     async def screenshot_b64(self) -> str:
-        img = await self.page.screenshot(type="jpeg", quality=55)
+        # animations="disabled" is essential: pages with looping CSS/chart
+        # animations (financial dashboards especially) make Playwright wait
+        # for a stability that never arrives. Explicit timeout on top.
+        img = await self.page.screenshot(
+            type="jpeg", quality=55, timeout=8_000, animations="disabled")
         return base64.b64encode(img).decode()
 
     async def distill(self, fresh_text: bool = True) -> dict:
@@ -203,7 +207,7 @@ class BrowserSession:
 
     async def _settle(self):
         try:
-            await self.page.wait_for_load_state("domcontentloaded", timeout=10_000)
+            await self.page.wait_for_load_state("domcontentloaded", timeout=8_000)
             await self.page.wait_for_timeout(600)
-        except PWTimeout:
+        except Exception:
             pass  # a page that never settles is still observable

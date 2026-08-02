@@ -15,6 +15,12 @@ from .llm import Planner, compact_history
 MAX_STEPS = int(os.environ.get("GLASSBOX_MAX_STEPS", "40"))
 MAX_CONSECUTIVE_ERRORS = 6
 LLM_TIMEOUT_S = 120
+# Every awaited operation gets a ceiling. A hang is worse than an error:
+# an error is visible and recoverable, a hang is a silent failure wearing
+# a spinner — the exact thing this agent promises never to do.
+ACTION_TIMEOUT_S = 45
+SCREENSHOT_TIMEOUT_S = 12
+OBSERVE_TIMEOUT_S = 25
 
 
 class Run:
@@ -219,7 +225,14 @@ class Run:
                     return
 
                 # --- act
-                ok, detail = await self._execute(action)
+                try:
+                    ok, detail = await asyncio.wait_for(
+                        self._execute(action), timeout=ACTION_TIMEOUT_S)
+                except asyncio.TimeoutError:
+                    ok, detail = False, (
+                        f"{action['tool']} did not finish within {ACTION_TIMEOUT_S}s "
+                        "and was abandoned. The page may be hanging or endlessly "
+                        "loading — try a different route.")
                 if ok:
                     errors_in_a_row = 0
                 else:
@@ -236,15 +249,29 @@ class Run:
                 await self.emit({"type": "action_result", "n": self.step_n, "ok": ok,
                                 "detail": detail[:300], "url": self.browser.page.url})
                 try:
-                    shot = await self.browser.screenshot_b64()
+                    shot = await asyncio.wait_for(
+                        self.browser.screenshot_b64(), timeout=SCREENSHOT_TIMEOUT_S)
                     await self.emit({"type": "screenshot", "n": self.step_n,
                                     "data": shot, "url": self.browser.page.url})
                 except Exception:
-                    pass  # a missing frame is cosmetic; the run continues
+                    # A missing frame is cosmetic — say so and keep going.
+                    await self.emit({"type": "status", "status": "note",
+                                    "detail": "Screenshot skipped for this step "
+                                              "(page too busy to capture)."})
 
-                messages.append(self._tool_result(tool_use["id"],
-                                                  await self._observation(ok, detail),
-                                                  error=not ok))
+                try:
+                    obs = await asyncio.wait_for(
+                        self._observation(ok, detail), timeout=OBSERVE_TIMEOUT_S)
+                except asyncio.TimeoutError:
+                    obs = (f"{'OK' if ok else 'FAILED'}: {detail}\n\n"
+                           "WARNING: this page could not be read within "
+                           f"{OBSERVE_TIMEOUT_S}s — it may be very large or still "
+                           "loading. Try a simpler page, or navigate somewhere else.")
+                    await self.emit({"type": "error", "n": self.step_n,
+                                    "message": "Page took too long to read; telling "
+                                               "the agent to try another route.",
+                                    "recoverable": True})
+                messages.append(self._tool_result(tool_use["id"], obs, error=not ok))
 
             if not self.stopped:
                 await self._finish("failure",
