@@ -16,6 +16,11 @@ from .sandbox import router as sandbox_router
 app = FastAPI(title="Glassbox")
 app.include_router(sandbox_router)
 
+# Bumped whenever the backend changes in a way worth confirming went live.
+# A backend-only deploy doesn't change the frontend bundle, so this is the
+# one reliable way to see from outside which build a host is actually running.
+VERSION = os.environ.get("GLASSBOX_VERSION", "2026-08-03-crash-resilient")
+
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
 # Each run owns a real Chromium process, measured at ~380 MB resident. On a
@@ -29,7 +34,8 @@ _runs_lock = asyncio.Lock()
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "model": os.environ.get("GLASSBOX_MODEL", "claude-sonnet-5"),
+    return {"ok": True, "version": VERSION,
+            "model": os.environ.get("GLASSBOX_MODEL", "claude-sonnet-5"),
             "key_present": bool(os.environ.get("ANTHROPIC_API_KEY")),
             "active_runs": _active_runs, "max_concurrent": MAX_CONCURRENT_RUNS}
 
