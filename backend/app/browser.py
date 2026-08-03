@@ -86,14 +86,47 @@ class BrowserSession:
         self._pw = await async_playwright().start()
         self.browser = await self._pw.chromium.launch(
             headless=self.headless,
-            args=["--disable-dev-shm-usage", "--no-sandbox"],
+            # Memory discipline for a constrained host: a very heavy page
+            # (a giant Wikipedia article, say) can OOM the renderer on a 1 GB
+            # box and crash the tab. Disabling image decode is the biggest
+            # single saving and costs the agent nothing — it reads the page's
+            # text, not its pictures. The human still sees layout, text and
+            # charts in the screenshot; only photos are absent.
+            args=["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu",
+                  "--blink-settings=imagesEnabled=false",
+                  "--js-flags=--max-old-space-size=512"],
         )
-        ctx = await self.browser.new_context(
+        await self._new_context()
+
+    async def _new_context(self):
+        self.ctx = await self.browser.new_context(
             viewport={"width": 1280, "height": 800},
             user_agent=DEFAULT_UA,
         )
-        ctx.set_default_timeout(12_000)
-        self.page = await ctx.new_page()
+        self.ctx.set_default_timeout(12_000)
+        self.page = await self.ctx.new_page()
+        self._text_offset = 0
+        self._last_text = ""
+
+    async def recreate_page(self):
+        """Recover from a renderer crash. A crashed renderer takes its whole
+        context with it, so a fresh page in the same context isn't enough — we
+        rebuild the context (which gets a clean renderer). If the browser
+        process itself died, relaunch the whole thing. Either way the agent is
+        told to re-navigate and the run continues instead of aborting."""
+        try:
+            if self.ctx:
+                await self.ctx.close()
+        except Exception:
+            pass
+        try:
+            await self._new_context()
+        except Exception:
+            # Browser process is gone — full relaunch.
+            try:
+                await self.start()
+            except Exception:
+                pass
 
     async def close(self):
         try:
@@ -164,7 +197,9 @@ class BrowserSession:
     # ---- actions ------------------------------------------------------
 
     async def goto(self, url: str):
-        if not url.startswith(("http://", "https://", "/")):
+        # Bare "example.com" → https://; but leave real schemes (about:, data:,
+        # file:) and site-relative paths untouched rather than mangling them.
+        if not url.startswith(("http://", "https://", "/", "about:", "data:", "file:")):
             url = "https://" + url
         await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
         await self._settle()

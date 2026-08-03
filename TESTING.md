@@ -15,12 +15,12 @@ Everything below is reproducible from this repo.
 | --- | --- | --- | --- | --- |
 | `test_loop.py` | machinery: loop, events, controls | 7 | no | yes |
 | `verify_extraction.py` | output correctness vs ground truth | 84 field comparisons | no | yes |
-| `test_resilience.py` | regressions for bugs found in production | 6 | no | yes |
+| `test_resilience.py` | regressions for bugs found in production | 9 | no | yes |
 | `adversarial/run_adversarial.py` | injection, refusal, fabrication, control | 18 across 7 scenarios | yes (~$0.20) | no |
 | live production runs | the real thing, end to end | 4 tasks, all verified | yes | no |
 
-**115 automated assertions**, plus four showcase tasks verified by hand
-against primary sources. Seven bugs found and fixed along the way — each one
+**118 automated assertions**, plus four showcase tasks verified by hand
+against primary sources. Eight bugs found and fixed along the way — each one
 written up in **[BUGS.md](BUGS.md)** with how it was found, why it mattered,
 and what changed.
 
@@ -144,7 +144,7 @@ against the tables above:
 | --- | --- | --- | --- |
 | Reconcile messy invoices | 14/14 rows exact | 9 | 68s |
 | Compare company financials | 6/6 figures exact vs 10-K | 3 | 37s |
-| Research brief: Show HN | structured brief, live site | 2 | 22s |
+| Research brief (multi-site) | Wikipedia + stockanalysis, cross-referenced | pending re-verify | — |
 | Tedious workflow: web form | fills a search form, 21 rows returned | 3 | 18s |
 
 The form-fill task is worth a look beyond the mechanics: the agent noticed

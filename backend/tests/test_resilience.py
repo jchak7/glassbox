@@ -51,12 +51,14 @@ async def test_no_hang_on_animated_page():
     """Regression: looping CSS animations made Playwright wait forever for a
     stability that never arrives. The run froze with no error — a silent
     failure wearing a spinner, the one outcome this agent must never produce."""
-    srv = socketserver.TCPServer(("127.0.0.1", 8899), _Handler)
+    socketserver.TCPServer.allow_reuse_address = True
+    srv = socketserver.TCPServer(("127.0.0.1", 0), _Handler)  # OS picks a free port
+    port = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     b = BrowserSession()
     try:
         await b.start()
-        await b.goto("http://127.0.0.1:8899/")
+        await b.goto(f"http://127.0.0.1:{port}/")
         t0 = time.time()
         shot = await asyncio.wait_for(b.screenshot_b64(), timeout=15)
         elapsed = time.time() - t0
@@ -69,6 +71,33 @@ async def test_no_hang_on_animated_page():
     finally:
         await b.close()
         srv.shutdown()
+
+
+async def test_recovers_from_page_crash():
+    """Regression: on a constrained host a very heavy page can OOM the renderer
+    and crash the tab. A crashed page object is dead — every later action on it
+    fails too — so a naive agent aborts the whole run. The browser now rebuilds
+    the context on a crash and the agent re-navigates, turning a fatal crash
+    into a recoverable blip."""
+    from app.agent import Run
+    b = BrowserSession()
+    try:
+        await b.start()
+        # recreate_page must yield a working page
+        await b.recreate_page()
+        await b.goto("about:blank")
+        check("recreate_page yields a live page", not b.page.is_closed())
+
+        # simulate the tab dying, then drive the real executor
+        await b.page.close()
+        run = Run("x", lambda e: asyncio.sleep(0))
+        run.browser = b
+        ok1, d1 = await run._execute({"tool": "navigate", "input": {"url": "about:blank"}})
+        check("dead page is detected and reset", "reset" in d1.lower() and not ok1)
+        ok2, _ = await run._execute({"tool": "navigate", "input": {"url": "about:blank"}})
+        check("run continues after recovery", ok2)
+    finally:
+        await b.close()
 
 
 async def test_malformed_payload_does_not_crash():
@@ -104,6 +133,8 @@ async def main():
     print("\nResilience suite — regressions for bugs found in production\n")
     print("Animated-page hang:")
     await test_no_hang_on_animated_page()
+    print("\nRenderer crash recovery:")
+    await test_recovers_from_page_crash()
     print("\nMalformed model payload:")
     await test_malformed_payload_does_not_crash()
     print(f"\n{len(PASSED)} passed, {len(FAILED)} failed")

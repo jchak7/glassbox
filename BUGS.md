@@ -184,3 +184,40 @@ test, and a flaky test is worse than no test — it trains you to ignore red.
 **Listed because** the same discipline applies to test code as product code,
 and because "the test was wrong" is a real finding worth recording rather
 than quietly editing away.
+
+## 8. Renderer crash on a heavy page took down the whole run
+
+**Severity:** aborted a task after it had already gathered half its data.
+
+**Found:** running the new multi-site research brief on production. The agent
+read the (very large) NVIDIA Wikipedia page and captured every fact
+correctly, then on navigating to the second source the Chromium renderer ran
+out of memory on the 1 GB host and the tab crashed with "Page crashed." The
+agent tried to recover, but every retry also failed and it aborted honestly
+after six attempts.
+
+**Cause, two parts.** (1) A crashed renderer takes its whole browser context
+with it — the page object is dead, so no later navigation or read on it can
+ever succeed. The agent's normal "try another route" recovery can't help,
+because the thing it acts through is broken. (2) The crash itself was memory
+pressure: a very large, image-heavy page on a constrained host.
+
+**Fix — prevention plus self-healing.**
+- Prevention: the browser now launches with image decoding disabled
+  (`--blink-settings=imagesEnabled=false`) plus `--disable-gpu` and a capped
+  V8 heap. Disabling images is the single biggest memory saving and costs the
+  agent nothing — it reads the page's text, not its pictures. The human still
+  sees layout, text and charts in the screenshot; only photos are absent.
+- Self-healing: a crash is now detected in the action executor, the browser
+  rebuilds its context (a clean renderer), and the agent is told the page was
+  reset and to re-navigate. A fatal crash becomes a recoverable blip. If the
+  browser process itself died, the whole thing relaunches.
+
+**Also fixed alongside:** `goto()` was prepending `https://` to anything not
+starting with http — which mangled `about:blank`, `data:` and `file:` URLs.
+Now those schemes pass through untouched.
+
+**Pinned by:** `tests/test_resilience.py` — kills the page mid-run and asserts
+the executor detects it, resets, and the run continues. Also verified that
+disabling images leaves the page *text* fully intact (the memory fix must not
+hide data) and that screenshots still capture.

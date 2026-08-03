@@ -56,8 +56,10 @@ production:
    directly comparable. Its figures were cross-checked against the
    companies' actual 10-K filings on SEC EDGAR and match exactly.
 
-Two more presets (a Show HN research brief and a sports-stats form workflow)
-show the agent generalizes — the loop has no task-specific code.
+Two more presets — a multi-site research brief (it reads a company's
+Wikipedia page and a financial-data site, then cross-checks the revenue
+figure between them) and a sports-stats form workflow — show the agent
+generalizes; the loop has no task-specific code.
 
 ## How it's built
 
@@ -115,7 +117,7 @@ python tests/test_resilience.py              # regressions for bugs found in pro
 python tests/adversarial/run_adversarial.py  # tries to break it (needs an API key)
 ```
 
-115 automated assertions across four suites, plus four showcase tasks
+118 automated assertions across four suites, plus four showcase tasks
 verified by hand against primary sources.
 
 The correctness suite re-derives the expected result independently from the
@@ -131,7 +133,7 @@ variant), does it invent data when a page is empty or unreachable (no), does
 it refuse harmful work (yes), and does it stop and take correction when a
 human intervenes (yes).
 
-Full detail in **[TESTING.md](TESTING.md)**. The seven bugs found while
+Full detail in **[TESTING.md](TESTING.md)**. The eight bugs found while
 building — how each was caught, why it mattered, and what changed — are in
 **[BUGS.md](BUGS.md)**.
 
@@ -190,4 +192,4 @@ The honest edges, in the order you're most likely to hit them:
 
 Each of these — what it is, why it exists, the workaround in place, and the
 path to production — is written up in **[LIMITATIONS.md](LIMITATIONS.md)**.
-The seven bugs found and fixed while building are in **[BUGS.md](BUGS.md)**.
+The eight bugs found and fixed while building are in **[BUGS.md](BUGS.md)**.

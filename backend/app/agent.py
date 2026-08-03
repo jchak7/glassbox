@@ -316,7 +316,22 @@ class Run:
                 return True, "Went back"
             return False, f"Unknown tool {tool!r}"
         except Exception as e:
-            return False, f"{tool} failed: {str(e)[:200]}"
+            msg = str(e)
+            # A renderer crash (memory pressure on a heavy page) kills the page
+            # object outright — every later action on it would fail too. Reset
+            # to a fresh page and tell the agent to re-navigate, turning an
+            # aborted run into a recoverable blip.
+            if any(s in msg.lower() for s in ("crash", "target closed",
+                                              "target page, context or browser has been closed")):
+                try:
+                    await b.recreate_page()
+                except Exception:
+                    pass
+                return False, (f"{tool} failed: the browser page crashed (likely a very "
+                               "heavy page under memory pressure) and was reset to a "
+                               "blank page. Re-navigate to your target to continue; if "
+                               "the same page keeps crashing, try a lighter source.")
+            return False, f"{tool} failed: {msg[:200]}"
 
     async def _observation(self, ok: bool, detail: str) -> str:
         """Build the tool_result content: outcome + fresh page state + operator notes."""
