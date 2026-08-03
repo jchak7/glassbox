@@ -144,7 +144,7 @@ against the tables above:
 | --- | --- | --- | --- |
 | Reconcile messy invoices | 14/14 rows exact | 9 | 68s |
 | Compare company financials | 6/6 figures exact vs 10-K | 3 | 37s |
-| Research brief (multi-site) | Wikipedia + stockanalysis, cross-referenced | pending re-verify | — |
+| Research brief (multi-site) | 7/7 facts exact + cross-source agreement noted | 3 | 24s |
 | Tedious workflow: web form | fills a search form, 21 rows returned | 3 | 18s |
 
 The form-fill task is worth a look beyond the mechanics: the agent noticed
