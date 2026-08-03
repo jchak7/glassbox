@@ -43,3 +43,22 @@ exactly:
 Use these to verify any run of the "Compare company financials" preset.
 Net margin check: Apple 112,010/416,161 = 26.9%; Microsoft
 133,749/331,839 = 40.3%.
+
+---
+
+## Research brief (multi-site) — NVIDIA, recorded 2026-08-03
+
+Two independent sources, both read by hand; they agree.
+
+**Wikipedia** (https://en.wikipedia.org/wiki/Nvidia):
+- Founded April 5, 1993, in Sunnyvale, California
+- Headquarters: Santa Clara, California
+- Founders: Jensen Huang, Chris Malachowsky, Curtis Priem
+- Infobox financials: revenue US$215.9B (FY26), net income US$120.1B (FY26)
+
+**stockanalysis.com** (https://stockanalysis.com/stocks/nvda/financials/):
+- Latest completed FY = FY2026 (ended Jan 25, 2026)
+- Revenue: $215,938M · Net income: $120,067M · EPS: 4.90
+
+Cross-source check: both put FY2026 revenue at ~$215.9B and net income at
+~$120.1B. A correct brief should note the two sources agree.

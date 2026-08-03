@@ -66,11 +66,18 @@ export const PRESETS: { label: string; goal: string; tag: string }[] = [
       'different fiscal year ends, so the periods are not directly comparable.',
   },
   {
-    label: 'Research brief: Show HN',
-    tag: 'extra',
+    label: 'Research brief (multi-site)',
+    tag: 'showcase',
     goal:
-      'Visit https://news.ycombinator.com/show and compile a short structured brief of the top 5 Show HN projects right now: ' +
-      'name, one-line description, points, and link. Add two sentences on any visible trend.',
+      'Compile a short research brief on NVIDIA by combining two independent sources. ' +
+      'First open https://en.wikipedia.org/wiki/Nvidia and read what the company does, ' +
+      'when and where it was founded, its headquarters, and its founders. Then open ' +
+      'https://stockanalysis.com/stocks/nvda/financials/ and read the most recent ' +
+      'completed fiscal year (not the TTM column): revenue and net income. ' +
+      'Deliver a brief: a 3-4 sentence overview synthesizing what NVIDIA is and how it is ' +
+      'performing; a table of key facts (Founded, Headquarters, Founders, Latest fiscal year, ' +
+      'Revenue, Net income); and in your notes, state explicitly whether Wikipedia and ' +
+      'stockanalysis.com agree on the revenue figure, plus the source URLs you used.',
   },
   {
     label: 'Tedious workflow: web form',
