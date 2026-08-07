@@ -9,6 +9,9 @@ ends with a clean structured result, or an honest account of why it couldn't.
 
 Built for the Minerva take-home challenge by [Jay Chak](https://jchak7.github.io/portfolio).
 
+> **New here?** [**USING-GLASSBOX.md**](USING-GLASSBOX.md) is the practical guide — how to drive it,
+> every prompt worth trying (copy-paste ready), and the full stack in one place.
+
 ## Why it looks the way it does
 
 A browser agent is only as useful as your ability to trust it. Most agent
